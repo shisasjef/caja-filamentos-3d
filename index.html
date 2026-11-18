@@ -614,6 +614,130 @@
       gap: 8px;
     }
 
+    .catalog-filter-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .catalog-filter-chips {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .sync-stock-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: auto;
+    }
+
+    .sync-status {
+      font-size: 0.73rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .stock-summary-line {
+      font-size: 0.77rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .stock-count-ok {
+      color: var(--cash);
+      font-weight: 600;
+    }
+
+    .stock-count-zero {
+      color: var(--text-muted);
+    }
+
+    .price-missing {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .stock-pill {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    .color-preset-btn.out-of-stock {
+      opacity: 0.52;
+      border-style: dashed;
+    }
+
+    .variant-stock-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 10px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+    }
+
+    .variant-stock-warn {
+      font-size: 0.78rem;
+      color: #d97706;
+      font-weight: 600;
+    }
+
+    .stock-list-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .stock-list-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 10px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+
+    .code-snippet-box {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.76rem;
+      line-height: 1.45;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      overflow-x: auto;
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    @keyframes spinIcon {
+      to { transform: rotate(360deg); }
+    }
+
+    .is-syncing svg {
+      animation: spinIcon 0.85s linear infinite;
+    }
+
     /* ===== PRODUCT GRID ===== */
     .product-grid {
       display: grid;
@@ -2109,13 +2233,31 @@
               <line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
           </span>
-          <input type="search" id="search-input" class="search-input" placeholder="Buscar filamento o producto..." autocomplete="off">
+          <input type="search" id="search-input" class="search-input" placeholder="Buscar filamento, color o SKU..." autocomplete="off">
           <button type="button" id="search-clear-btn" class="search-clear" aria-label="Limpiar búsqueda">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"/>
               <line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </button>
+        </div>
+
+        <div class="catalog-filter-bar">
+          <div class="catalog-filter-chips" role="group" aria-label="Filtros del catálogo">
+            <button type="button" class="chip-btn active" data-cat-filter="all">Todos</button>
+            <button type="button" class="chip-btn" data-cat-filter="priced">Con precio</button>
+            <button type="button" class="chip-btn" data-cat-filter="instock">Con stock</button>
+          </div>
+          <div class="sync-stock-group">
+            <span id="stock-sync-label" class="sync-status"></span>
+            <button type="button" id="sync-stock-btn" class="chip-btn" title="Actualizar stock desde filamentos3d.com.py/grilon3.php">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="23 4 23 10 17 10"/>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+              </svg>
+              <span>Actualizar stock</span>
+            </button>
+          </div>
         </div>
 
         <div id="edit-banner" class="edit-banner" role="region" aria-label="Modo edición de precios">
@@ -2409,8 +2551,21 @@
           <input type="text" id="variant-color-input" class="field-input" placeholder="Ej: Blanco, Negro, Rojo, PLA+ Gris..." maxlength="60" autocomplete="off">
         </div>
 
+        <div id="variant-stock-row" class="variant-stock-row" style="display:none;">
+          <span id="variant-stock-label" style="font-weight:600;">Stock:</span>
+          <div class="card-stepper">
+            <button type="button" class="qty-btn" id="variant-stock-dec" aria-label="Restar 1 al stock">−</button>
+            <input type="number" id="variant-stock-input" class="qty-inline-input tabular" min="0" step="1" inputmode="numeric" value="0" aria-label="Stock disponible">
+            <button type="button" class="qty-btn" id="variant-stock-inc" aria-label="Sumar 1 al stock">+</button>
+          </div>
+        </div>
+        <div id="variant-stock-warn" class="variant-stock-warn" style="display:none;"></div>
+
         <div class="form-group">
-          <span class="form-label">Colores rápidos</span>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <span class="form-label" style="margin:0;">Colores y stock</span>
+            <button type="button" id="variant-stock-filter-btn" class="chip-btn" style="min-height:26px;padding:2px 8px;font-size:0.72rem;">Solo con stock</button>
+          </div>
           <div id="color-presets-grid" class="color-presets-grid"></div>
         </div>
       </div>
@@ -2455,6 +2610,119 @@
     </div>
   </div>
 
+  <!-- MODAL 4: QUICK PRICE EDIT -->
+  <div id="quick-price-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="qp-modal-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="qp-modal-title" class="modal-title">Fijar precio</h3>
+        <button type="button" id="close-qp-btn" class="btn btn-icon btn-ghost" aria-label="Cerrar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <form id="quick-price-form" style="display:flex;flex-direction:column;flex:1 1 auto;min-height:0;">
+        <div class="modal-body">
+          <div id="qp-prod-name" style="font-weight:700;font-size:0.96rem;"></div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="qp-cash" class="form-label">Precio Efectivo ($)</label>
+              <input type="number" id="qp-cash" class="field-input tabular" inputmode="decimal" min="0" step="any" placeholder="Ej: 21000" required>
+            </div>
+            <div class="form-group">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <label for="qp-transfer" class="form-label">Transferencia ($)</label>
+                <button type="button" id="qp-plus5-btn" class="chip-btn">+5%</button>
+              </div>
+              <input type="number" id="qp-transfer" class="field-input tabular" inputmode="decimal" min="0" step="any" placeholder="Igual a efectivo">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="cancel-qp-btn" class="btn">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar precio</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 5: STOCK BY COLOR EDITOR -->
+  <div id="stock-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="stock-modal-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div style="min-width:0;">
+          <h3 id="stock-modal-title" class="modal-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Stock por color</h3>
+          <div id="stock-modal-subtitle" style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;"></div>
+        </div>
+        <button type="button" id="close-stock-btn" class="btn btn-icon btn-ghost" aria-label="Cerrar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div id="stock-modal-list" class="stock-list-grid"></div>
+        <div style="border-top:1px solid var(--border);padding-top:12px;display:flex;flex-direction:column;gap:8px;">
+          <span class="form-label">Agregar color al stock</span>
+          <div style="display:grid;grid-template-columns:1fr 84px auto;gap:6px;align-items:center;">
+            <input type="text" id="stock-add-color-input" class="field-input" placeholder="Ej: Rosa Pastel" maxlength="60">
+            <input type="number" id="stock-add-qty-input" class="field-input tabular" inputmode="numeric" min="0" step="1" placeholder="Cant." value="1">
+            <button type="button" id="stock-add-btn" class="btn btn-sm btn-primary">+ Sumar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" id="done-stock-btn" class="btn btn-primary">Listo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 6: LIVE STOCK SYNC / CORS & PASTE FALLBACK -->
+  <div id="sync-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="sync-modal-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="sync-modal-title" class="modal-title">Actualizar stock desde el link</h3>
+        <button type="button" id="close-sync-btn" class="btn btn-icon btn-ghost" aria-label="Cerrar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div id="sync-modal-status" style="font-size:0.84rem;color:var(--text-secondary);"></div>
+
+        <div class="form-group">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <span class="form-label" style="margin:0;">Para lectura en vivo (Hostinger / grilon3.php)</span>
+            <button type="button" id="copy-php-cors-btn" class="chip-btn">Copiar PHP</button>
+          </div>
+          <pre id="php-cors-snippet" class="code-snippet-box">&lt;?php
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, OPTIONS");
+?&gt;</pre>
+          <span style="font-size:0.75rem;color:var(--text-muted);">Pegalo en la <strong>primera línea</strong> de <code>grilon3.php</code> (antes de cualquier HTML o &lt;link&gt;).</span>
+        </div>
+
+        <div class="form-group">
+          <label for="sync-paste-input" class="form-label">O pegá aquí la tabla copiada del link (Ctrl+A → Ctrl+C en grilon3.php)</label>
+          <textarea id="sync-paste-input" class="share-textarea" style="min-height:110px;" placeholder="Pegá la tabla o HTML de https://filamentos3d.com.py/grilon3.php..."></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content:space-between;">
+        <button type="button" id="sync-retry-btn" class="btn btn-sm">Reintentar en vivo</button>
+        <button type="button" id="sync-import-paste-btn" class="btn btn-primary">Importar pegado</button>
+      </div>
+    </div>
+  </div>
+
   <!-- TOAST -->
   <div id="toast" class="toast" role="status" aria-live="polite">
     <span id="toast-msg"></span>
@@ -2466,22 +2734,49 @@
       'use strict';
 
       const STORAGE_PRODUCTS = 'f3d_products_v1';
+      const STORAGE_STOCK = 'f3d_stock_v1';
+      const STORAGE_STOCK_SEEDED = 'f3d_stock_seeded_v1';
+      const STORAGE_STOCK_SYNC_AT = 'f3d_stock_sync_at_v1';
       const STORAGE_CART = 'f3d_cart_v1';
       const STORAGE_PAY_MODE = 'f3d_paymode_v1';
       const STORAGE_MIXED_RULE = 'f3d_mixed_rule_v1';
       const STORAGE_THEME = 'f3d_theme_v1';
       const STORAGE_SALES = 'f3d_sales_v1';
       const STORAGE_SALE_SEQ = 'f3d_sale_seq_v1';
+      const STOCK_SOURCE_URL = 'https://filamentos3d.com.py/grilon3.php';
 
-      const DEFAULT_PRODUCTS = [
-        { id: '3n3', name: 'Filamento 3N3', cash: 19000, transfer: 19900, category: 'Filamento' },
-        { id: '3nmax-1kg', name: 'Filamento 3NMax 1kg', cash: 17000, transfer: 17800, category: 'Filamento' },
-        { id: '3nmax-750g', name: 'Filamento 3NMax 750g', cash: 13000, transfer: 13650, category: 'Filamento' },
-        { id: 'grilon-boutique', name: 'Filamento Grilon Boutique', cash: 21000, transfer: 22050, category: 'Filamento' },
-        { id: 'grilon-pla', name: 'Filamento Grilon PLA común', cash: 21000, transfer: 22050, category: 'Filamento' },
-        { id: 'hyper-pro', name: 'Filamento Hyper Pro', cash: 26000, transfer: 27300, category: 'Filamento' },
-        { id: 'silk-color', name: 'Filamento Silk (menos blanco y negro)', cash: 26000, transfer: 27300, category: 'Filamento' }
-      ];
+      const CORE_PRICES = {
+        '3n3': [19000, 19900],
+        '3nmax-1kg': [17000, 17800],
+        '3nmax-750g': [13000, 13650],
+        'grilon-boutique': [21000, 22050],
+        'grilon-pla': [21000, 22050],
+        'hyper-pro': [26000, 27300],
+        'silk-color': [26000, 27300]
+      };
+
+      const INITIAL_STOCK_GROUPS = [{"id":"3n3","name":"Filamento 3N3","category":"Filamento","variants":[{"sku":"M80IBL175CJ","color":"Blanco","stock":289},{"sku":"M80ING175CJ","color":"Negro","stock":441},{"sku":"M80INT175CJ","color":"Natural","stock":43},{"sku":"M80IGR175CJ","color":"Gris Plomo","stock":240},{"sku":"M80IRJ175CJ","color":"Rojo","stock":0},{"sku":"M80IAM175CJ","color":"Amarillo","stock":402},{"sku":"M80IVR175CJ","color":"Verde","stock":101},{"sku":"M80IAZ175CJ","color":"Azul","stock":0},{"sku":"M80INR175CJ","color":"Naranja","stock":293},{"sku":"M80IFU175CJ","color":"Fucsia","stock":0},{"sku":"M80IVI175CJ","color":"Violeta","stock":0},{"sku":"M80IRS175CJ","color":"Rosa","stock":0},{"sku":"M80ICE175CJ","color":"Celeste","stock":140},{"sku":"M80IBR175CJ","color":"Bronce","stock":229},{"sku":"M80ICO175CJ","color":"Cobre","stock":107},{"sku":"M80IVF175CJ","color":"Verde Fluo","stock":0},{"sku":"M80IAF175CJ","color":"Amarillo Fluo","stock":42},{"sku":"M80IGA175CJ","color":"Gris Acero","stock":39},{"sku":"M80IOR175CJ","color":"Oro","stock":432},{"sku":"M80IHA175CJ","color":"Habano","stock":0},{"sku":"M80IHU175CJ","color":"Hueso","stock":287},{"sku":"M80IRU175CJ","color":"Rústico","stock":14}]},{"id":"3nmax-1kg","name":"Filamento 3NMax 1kg","category":"Filamento","variants":[{"sku":"M81IBL175CJ","color":"Blanco","stock":0},{"sku":"M81ING175CJ","color":"Negro","stock":425},{"sku":"M81IGP175CJ","color":"Gris Plomo","stock":0},{"sku":"M81IRJ175CJ","color":"Rojo","stock":0},{"sku":"M81IAM175CJ","color":"Amarillo","stock":0},{"sku":"M81IVR175CJ","color":"Verde","stock":0},{"sku":"M81IAZ175CJ","color":"Azul","stock":0},{"sku":"M81INR175CJ","color":"Naranja","stock":0},{"sku":"M81ILI175CJ","color":"Lila","stock":0},{"sku":"M81IRS175CJ","color":"Rosa","stock":0},{"sku":"M81ICE175CJ","color":"Celeste","stock":0},{"sku":"M81IBR175CJ","color":"Bronce","stock":0},{"sku":"M81IUV175CJ","color":"Uva","stock":8},{"sku":"M81ICH175CJ","color":"Chocolate","stock":0}]},{"id":"3nmax-750g","name":"Filamento 3NMax 750g","category":"Filamento","variants":[{"sku":"M81IBL175C7","color":"Blanco","stock":237},{"sku":"M81ING175C7","color":"Negro","stock":54},{"sku":"M81IGP175C7","color":"Gris Plomo","stock":0},{"sku":"M81IRJ175C7","color":"Rojo","stock":0},{"sku":"M81IAM175C7","color":"Amarillo","stock":0},{"sku":"M81IVR175C7","color":"Verde","stock":48},{"sku":"M81IAZ175C7","color":"Azul","stock":251},{"sku":"M81INR175C7","color":"Naranja","stock":0},{"sku":"M81ILI175C7","color":"Lila","stock":56},{"sku":"M81IRS175C7","color":"Rosa","stock":31},{"sku":"M81ICE175C7","color":"Celeste","stock":111},{"sku":"M81IBR175C7","color":"Bronce","stock":0},{"sku":"M81ICH175C7","color":"Chocolate","stock":0}]},{"id":"grilon-boutique","name":"Filamento Grilon Boutique","category":"Filamento","variants":[{"sku":"M17ICB175CJ","color":"Carbón","stock":51},{"sku":"M17IPE175CJ","color":"Perla Cálido","stock":23},{"sku":"M17IPF175CJ","color":"Perla Frío","stock":34},{"sku":"M17IRU175CJ","color":"Rubí","stock":0},{"sku":"M17IAR175CJ","color":"Arena","stock":0},{"sku":"M17ICA175CJ","color":"Caribe","stock":0},{"sku":"M17IZA175CJ","color":"Zafiro","stock":42},{"sku":"M17IFR175CJ","color":"Frutilla","stock":20},{"sku":"M17ILA175CJ","color":"Lavanda","stock":0},{"sku":"M17ISA175CJ","color":"Salmón","stock":115},{"sku":"M17IAQ175CJ","color":"Acqua","stock":53},{"sku":"M17IDL175CJ","color":"Dulce de Leche","stock":0},{"sku":"M17ICI175CJ","color":"Crema del Cielo","stock":137},{"sku":"M17IES175CJ","color":"Esmeralda","stock":151},{"sku":"M17IVA175CJ","color":"Verde Aviador","stock":0},{"sku":"M17ICH175CJ","color":"Chocolate","stock":0}]},{"id":"grilon-pla","name":"Filamento Grilon PLA común","category":"Filamento","variants":[{"sku":"M10IBL175CJ","color":"Blanco","stock":489},{"sku":"M10ING175CJ","color":"Negro","stock":217},{"sku":"M10INT175CJ","color":"Natural","stock":155},{"sku":"M10IGR175CJ","color":"Gris Plata","stock":203},{"sku":"M10IRJ175CJ","color":"Rojo","stock":0},{"sku":"M10IAM175CJ","color":"Amarillo","stock":0},{"sku":"M10IVR175CJ","color":"Verde","stock":0},{"sku":"M10IAZ175CJ","color":"Azul","stock":0},{"sku":"M10INF175CJ","color":"Naranja Fluo","stock":18},{"sku":"M10IFU175CJ","color":"Fucsia","stock":27},{"sku":"M10IVI175CJ","color":"Violeta","stock":0},{"sku":"M10IRS175CJ","color":"Rosa","stock":0},{"sku":"M10ICE175CJ","color":"Celeste","stock":112},{"sku":"M10IBR175CJ","color":"Bronce","stock":115},{"sku":"M10ICO175CJ","color":"Cobre","stock":72},{"sku":"M10ITU175CJ","color":"Turquesa","stock":99},{"sku":"M10IBO175CJ","color":"Bordó","stock":0},{"sku":"M10IVF175CJ","color":"Verde Fluo","stock":58},{"sku":"M10IVM175CJ","color":"Verde Manzana","stock":100},{"sku":"M10IAF175CJ","color":"Amarillo Fluo","stock":56},{"sku":"M10IGE175CJ","color":"Gris Espacial","stock":89},{"sku":"M10IAP175CJ","color":"Azul de Prusia","stock":39},{"sku":"M10IDO175CJ","color":"Dorado","stock":0},{"sku":"M10IMF175CJ","color":"Magenta Fluo","stock":12},{"sku":"M10IPI175CJ","color":"Piel-162","stock":341},{"sku":"M10IP1175CJ","color":"Piel-720","stock":78},{"sku":"M10ICA175CJ","color":"Carpincho","stock":0}]},{"id":"hyper-pro","name":"Filamento Hyper Pro","category":"Filamento","variants":[{"sku":"M11IBL175CJ","color":"Blanco","stock":22},{"sku":"M11ING175CJ","color":"Negro","stock":13},{"sku":"M11IGR175CJ","color":"Gris Plata","stock":2},{"sku":"M11IRJ175CJ","color":"Rojo","stock":257},{"sku":"M11IAZ175CJ","color":"Azul","stock":318},{"sku":"M11INF175CJ","color":"Naranja Fluo","stock":0},{"sku":"M11IBR175CJ","color":"Bronce","stock":0},{"sku":"M11ITU175CJ","color":"Turquesa","stock":12},{"sku":"M11IBO175CJ","color":"Bordó","stock":0},{"sku":"M11IVF175CJ","color":"Verde Fluo","stock":12}]},{"id":"silk-color","name":"Filamento Silk (menos blanco y negro)","category":"Filamento","variants":[{"sku":"M21IAZ175CJ","color":"Azul","stock":72},{"sku":"M21IDO175CJ","color":"Dorado","stock":655},{"sku":"M21IVR175CJ","color":"Verde","stock":58},{"sku":"M21IPL175CJ","color":"Platino","stock":0},{"sku":"M21ITF175CJ","color":"Tutti Frutti","stock":0},{"sku":"M21ICO175CJ","color":"Cobre","stock":31}]},{"id":"grilon-abs","name":"Grilon3 ABS 1kg","category":"Filamento","variants":[{"sku":"M09IBL175CJ","color":"Blanco","stock":128},{"sku":"M09ING175CJ","color":"Negro","stock":190},{"sku":"M09INT175CJ","color":"Natural","stock":19},{"sku":"M09IGR175CJ","color":"Gris Plata","stock":0},{"sku":"M09IRJ175CJ","color":"Rojo","stock":32},{"sku":"M09IAM175CJ","color":"Amarillo","stock":0},{"sku":"M09IVR175CJ","color":"Verde","stock":0},{"sku":"M09IAZ175CJ","color":"Azul","stock":0},{"sku":"M09INF175CJ","color":"Naranja Fluo","stock":0},{"sku":"M09IFU175CJ","color":"Fucsia","stock":12}]},{"id":"grilon-hips","name":"Grilon3 HIPS 1kg","category":"Filamento","variants":[{"sku":"M08IBL175CJ","color":"Blanco","stock":0},{"sku":"M08ING175CJ","color":"Negro","stock":15},{"sku":"M08INT175CJ","color":"Natural","stock":0}]},{"id":"grilon-nylon12","name":"Grilon3 Nylon 12 1kg","category":"Filamento","variants":[{"sku":"M12IBL175CJ","color":"Blanco","stock":3},{"sku":"M12ING175CJ","color":"Negro","stock":0},{"sku":"M12INT175CJ","color":"Natural","stock":0}]},{"id":"grilon-nylon6","name":"Grilon3 Nylon 6 1kg","category":"Filamento","variants":[{"sku":"M01IBL175CJ","color":"Blanco","stock":0},{"sku":"M01ING175CJ","color":"Negro","stock":0},{"sku":"M01INT175CJ","color":"Natural","stock":0},{"sku":"M01INF175CJ","color":"Naranja Fluo","stock":2},{"sku":"M01IVF175CJ","color":"Verde Fluo","stock":28},{"sku":"M01IOT175CJ","color":"Óptico","stock":12}]},{"id":"grilon-petg","name":"Grilon3 PETG 1kg","category":"Filamento","variants":[{"sku":"M77IBL175CJ","color":"Blanco","stock":387},{"sku":"M77ING175CJ","color":"Negro","stock":734},{"sku":"M77INT175CJ","color":"Natural","stock":0},{"sku":"M77IGR175CJ","color":"Gris Plata","stock":0},{"sku":"M77IRJ175CJ","color":"Clear Rojo","stock":0},{"sku":"M77IAM175CJ","color":"Clear Amarillo","stock":51},{"sku":"M77IVR175CJ","color":"Clear Verde","stock":0},{"sku":"M77IAZ175CJ","color":"Clear Azul","stock":0},{"sku":"M77IAB175CJ","color":"Clear Ámbar","stock":0},{"sku":"M77INP175CJ","color":"Naranja Praga","stock":58},{"sku":"M77INV175CJ","color":"Nova","stock":30},{"sku":"M77ICH175CJ","color":"Chocolate","stock":4},{"sku":"M77IGA175CJ","color":"Gris Acero","stock":0}]},{"id":"grilon-kits","name":"Grilon3 Kits Lápiz 3D","category":"Kit / Sampler","variants":[{"sku":"S10ILA2010K","color":"20 Colores 10m por Color (200m)","stock":10},{"sku":"S10ILA2005K","color":"20 Colores 5m por Color (100m)","stock":0},{"sku":"S10ILA1010K","color":"10 Colores 10m por Color (100m)","stock":12},{"sku":"S10ILA1005K","color":"10 Colores 5m por Color (50m)","stock":0}]},{"id":"silk-bn","name":"Filamento Silk (Blanco / Negro)","category":"Filamento","variants":[{"sku":"M21IZB175CJ","color":"Azabache","stock":68},{"sku":"M21IBL175CJ","color":"Blanco Perla","stock":6}]},{"id":"grilon-astra","name":"Grilon3 Astra 1kg","category":"Filamento","variants":[{"sku":"M22ICA175CJ","color":"Calipso","stock":14},{"sku":"M22IDA175CJ","color":"Dark","stock":60},{"sku":"M22IJA175CJ","color":"Jade","stock":31},{"sku":"M22INE175CJ","color":"Nebula","stock":23},{"sku":"M22INO175CJ","color":"Noche","stock":47},{"sku":"M22IRO175CJ","color":"Roby","stock":40}]},{"id":"grilon-pla870","name":"Grilon3 PLA 870 1kg","category":"Filamento","variants":[{"sku":"M15IBL175CJ","color":"Blanco","stock":2},{"sku":"M15ING175CJ","color":"Negro","stock":18},{"sku":"M15INT175CJ","color":"Natural","stock":0},{"sku":"M15IGR175CJ","color":"Gris Plata","stock":0},{"sku":"M15ITU175CJ","color":"Turquesa","stock":0},{"sku":"M15IBO175CJ","color":"Bordó","stock":0}]},{"id":"grilon-zeta","name":"Grilon3 Zeta 1kg","category":"Filamento","variants":[{"sku":"M16IZB175CJ","color":"Azabache","stock":0},{"sku":"M16ICR175CJ","color":"Clear Cristal","stock":2}]},{"id":"grilon-wood","name":"Grilon3 PLA Wood 1kg","category":"Filamento","variants":[{"sku":"M20ICA175CJ","color":"Caoba","stock":14},{"sku":"M20ICE175CJ","color":"Cerezo","stock":0},{"sku":"M20INO175CJ","color":"Nogal","stock":0},{"sku":"M20IPI175CJ","color":"Pino","stock":0}]},{"id":"grilon-pva","name":"Grilon3 PVA 500g","category":"Filamento","variants":[{"sku":"M18INT175CI","color":"Natural","stock":0}]},{"id":"grilon-simpliflex","name":"Grilon3 Simpliflex 1kg","category":"Filamento","variants":[{"sku":"M13IBL175CJ","color":"Blanco","stock":12},{"sku":"M13ING175CJ","color":"Negro","stock":0},{"sku":"M13INT175CJ","color":"Natural","stock":0},{"sku":"M13IVR175CJ","color":"Verde","stock":0},{"sku":"M13INA175CJ","color":"Naranja","stock":2},{"sku":"M13INV175CJ","color":"Nova","stock":0},{"sku":"M13ICE175CJ","color":"Celeste","stock":0}]},{"id":"grilon-acetal","name":"Grilon3 Acetal-POM 1kg","category":"Filamento","variants":[{"sku":"M03IBL175CJ","color":"Blanco","stock":2},{"sku":"M03ING175CJ","color":"Negro","stock":0},{"sku":"M03IGR175CJ","color":"Gris Plata","stock":1},{"sku":"M03IRJ175CJ","color":"Rojo","stock":6},{"sku":"M03IGA175CJ","color":"Gris Acero","stock":5}]},{"id":"grilon-ppt","name":"Grilon3 PP-T 1kg","category":"Filamento","variants":[{"sku":"M04IBL175CJ","color":"Blanco","stock":0},{"sku":"M04ING175CJ","color":"Negro","stock":0},{"sku":"M04INT175CJ","color":"Natural","stock":35},{"sku":"M04IRJ175CJ","color":"Rojo","stock":0},{"sku":"M04IAM175CJ","color":"Amarillo","stock":18},{"sku":"M04IVR175CJ","color":"Verde","stock":8},{"sku":"M04IAZ175CJ","color":"Azul","stock":14},{"sku":"M04IGA175CJ","color":"Gris Acero","stock":0}]},{"id":"maxi-petg","name":"Maxifill Grilon3 PETG 2.5kg","category":"Bulk / Mega","variants":[{"sku":"M77IBL175C2","color":"Blanco","stock":0},{"sku":"M77ING175C2","color":"Negro","stock":0}]},{"id":"maxi-abs","name":"Maxifill Grilon3 ABS 2.5kg","category":"Bulk / Mega","variants":[{"sku":"M09IBL175C2","color":"Blanco","stock":0},{"sku":"M09ING175C2","color":"Negro","stock":0},{"sku":"M09ITU175C2","color":"Turquesa","stock":0}]},{"id":"maxi-hyper","name":"Maxifill Grilon3 Hyper Pro 2.5kg","category":"Bulk / Mega","variants":[{"sku":"M11IBL175C2","color":"Blanco","stock":0},{"sku":"M11ING175C2","color":"Negro","stock":0},{"sku":"M11IGR175C2","color":"Gris Plata","stock":0},{"sku":"M11IRJ175C2","color":"Rojo","stock":0},{"sku":"M11IAZ175C2","color":"Azul","stock":0},{"sku":"M11IBR175C2","color":"Bronce","stock":0}]},{"id":"mega-pla","name":"Megafill Grilon3 PLA 4kg","category":"Bulk / Mega","variants":[{"sku":"M10IBL175C4","color":"Blanco","stock":0},{"sku":"M10ING175C4","color":"Negro","stock":4},{"sku":"M10IGR175C4","color":"Gris Plata","stock":16},{"sku":"M10IRJ175C4","color":"Rojo","stock":2},{"sku":"M10IAM175C4","color":"Amarillo","stock":8},{"sku":"M10IAZ175C4","color":"Azul","stock":0},{"sku":"M10ITU175C4","color":"Turquesa","stock":3},{"sku":"M10IPI175C4","color":"Piel-162","stock":7},{"sku":"M10IP1175C4","color":"Piel-720","stock":8}]},{"id":"mega-boutique","name":"Megafill Grilon3 Boutique 4kg","category":"Bulk / Mega","variants":[{"sku":"M17IPE175C4","color":"Perla Cálido","stock":5},{"sku":"M17IPF175C4","color":"Perla Frío","stock":0}]},{"id":"mega-petg","name":"Megafill Grilon3 PETG 4kg","category":"Bulk / Mega","variants":[{"sku":"M77IBL175C4","color":"Blanco","stock":0},{"sku":"M77ING175C4","color":"Negro","stock":3},{"sku":"M77IVR175C4","color":"Clear Verde","stock":0}]},{"id":"3n3-epet","name":"3N3 EPET 1kg","category":"Filamento","variants":[{"sku":"M87IBL175CJ","color":"Blanco","stock":22},{"sku":"M87ING175CJ","color":"Negro","stock":0},{"sku":"M87IGE175CJ","color":"Gris Espacial","stock":0},{"sku":"M87IAT175CJ","color":"Azul Traful","stock":0},{"sku":"M87IRC175CJ","color":"Rojo Carmín","stock":9},{"sku":"M87IVL175CJ","color":"Verde Lima","stock":0}]},{"id":"3n3-tpu-500g","name":"3N3 TPU 500g","category":"Filamento","variants":[{"sku":"M83IBL175CI","color":"Blanco","stock":117},{"sku":"M83ING175CI","color":"Negro","stock":0},{"sku":"M83IGR175CI","color":"Gris Plomo","stock":0},{"sku":"M83IRJ175CI","color":"Rojo","stock":0},{"sku":"M83IVR175CI","color":"Verde","stock":0},{"sku":"M83IAZ175CI","color":"Azul","stock":12}]},{"id":"3n3-tpu-1kg","name":"3N3 TPU 1kg","category":"Filamento","variants":[{"sku":"M83IBL175CJ","color":"Blanco","stock":0},{"sku":"M83ING175CJ","color":"Negro","stock":0},{"sku":"M83IGR175CJ","color":"Gris Plomo","stock":0},{"sku":"M83IRJ175CJ","color":"Rojo","stock":0},{"sku":"M83IVR175CJ","color":"Verde","stock":22},{"sku":"M83IAZ175CJ","color":"Azul","stock":21}]},{"id":"3n3-500g","name":"Filamento 3N3 PLA 500g","category":"Filamento","variants":[{"sku":"M80IBL175CI","color":"Blanco","stock":0},{"sku":"M80ING175CI","color":"Negro","stock":0},{"sku":"M80IGR175CI","color":"Gris Plomo","stock":0},{"sku":"M80IRJ175CI","color":"Rojo","stock":0},{"sku":"M80IAM175CI","color":"Amarillo","stock":0},{"sku":"M80IAZ175CI","color":"Azul","stock":0},{"sku":"M80INR175CI","color":"Naranja","stock":0},{"sku":"M80IFU175CI","color":"Fucsia","stock":0},{"sku":"M80ICE175CI","color":"Celeste","stock":0},{"sku":"M80IBR175CI","color":"Bronce","stock":0},{"sku":"M80IVF175CI","color":"Verde Fluo","stock":0}]},{"id":"3n3-petg","name":"3N3 PETG 1kg","category":"Filamento","variants":[{"sku":"M88IBL175CJ","color":"Blanco","stock":0},{"sku":"M88ING175CJ","color":"Negro","stock":178},{"sku":"M88IRJ175CJ","color":"Rojo","stock":178},{"sku":"M88IAZ175CJ","color":"Azul","stock":81},{"sku":"M88IBR175CJ","color":"Bronce","stock":49},{"sku":"M88IGE175CJ","color":"Gris Espacial","stock":0}]},{"id":"3nflex","name":"3NFlex PLA+ 1kg","category":"Filamento","variants":[{"sku":"M82IBL175CJ","color":"Blanco","stock":0},{"sku":"M82ING175CJ","color":"Negro","stock":0},{"sku":"M82IGR175CJ","color":"Gris Plomo","stock":0},{"sku":"M82IRJ175CJ","color":"Rojo","stock":0},{"sku":"M82IAM175CJ","color":"Amarillo","stock":0},{"sku":"M82IVR175CJ","color":"Verde","stock":0},{"sku":"M82INR175CJ","color":"Naranja","stock":0},{"sku":"M82IRS175CJ","color":"Rosa","stock":0},{"sku":"M82IBR175CJ","color":"Bronce","stock":0},{"sku":"M82IVM175CJ","color":"Verde Manzana","stock":0},{"sku":"M82IAP175CJ","color":"Azul de Prusia","stock":0},{"sku":"M82IPI175CJ","color":"Piel-162","stock":0},{"sku":"M82IP1175CJ","color":"Piel-720","stock":0}]},{"id":"sampler-acetal-pom","name":"Sampler Grilon3 Acetal-POM 17m","category":"Kit / Sampler","variants":[{"sku":"S03ING175SA","color":"Negro","stock":0},{"sku":"S03IGR175SA","color":"Gris Plata","stock":0},{"sku":"S03IRJ175SA","color":"Rojo","stock":0},{"sku":"S03IGA175SA","color":"Gris Acero","stock":0}]},{"id":"sampler-asa","name":"Sampler Grilon3 ASA 17m","category":"Kit / Sampler","variants":[{"sku":"S23IBL175SA","color":"Blanco","stock":0},{"sku":"S23ING175SA","color":"Negro","stock":0}]},{"id":"sampler-astra","name":"Sampler Grilon3 Astra 17m","category":"Kit / Sampler","variants":[{"sku":"S22ICA175SA","color":"Calipso","stock":0},{"sku":"S22IDA175SA","color":"Dark","stock":0},{"sku":"S22IJA175SA","color":"Jade","stock":0},{"sku":"S22INE175SA","color":"Nebula","stock":0},{"sku":"S22INO175SA","color":"Noche","stock":0},{"sku":"S22IRO175SA","color":"Roby","stock":0}]},{"id":"sampler-nylon12","name":"Sampler Grilon3 Nylon12 17m","category":"Kit / Sampler","variants":[{"sku":"S12IBL175SA","color":"Blanco","stock":0},{"sku":"S12ING175SA","color":"Negro","stock":0},{"sku":"S12INT175SA","color":"Natural","stock":0},{"sku":"S12IAZ175SA","color":"Azul","stock":0},{"sku":"S12ITI175SA","color":"Titanio","stock":0}]},{"id":"sampler-nylon6","name":"Sampler Grilon3 Nylon6 17m","category":"Kit / Sampler","variants":[{"sku":"S01IBL175SA","color":"Blanco","stock":0},{"sku":"S01ING175SA","color":"Negro","stock":0},{"sku":"S01INT175SA","color":"Natural","stock":5},{"sku":"S01INF175SA","color":"Naranja Fluo","stock":0},{"sku":"S01IVF175SA","color":"Verde Fluo","stock":0},{"sku":"S01IOT175SA","color":"Óptico","stock":0}]},{"id":"sampler-petg","name":"Sampler Grilon3 PETG 17m","category":"Kit / Sampler","variants":[{"sku":"S77IBL175SA","color":"Blanco","stock":8},{"sku":"S77ING175SA","color":"Negro","stock":7},{"sku":"S77INT175SA","color":"Natural","stock":8},{"sku":"S77IGR175SA","color":"Gris Plata","stock":6},{"sku":"S77INP175SA","color":"Naranja Praga","stock":0},{"sku":"S77IGA175SA","color":"Gris Acero","stock":0},{"sku":"S77INV175SA","color":"Nova","stock":0},{"sku":"S77ICH175SA","color":"Chocolate","stock":0},{"sku":"S77IRJ175SA","color":"Clear Rojo","stock":0},{"sku":"S77IAM175SA","color":"Clear Amarillo","stock":8},{"sku":"S77IVR175SA","color":"Clear Verde","stock":0},{"sku":"S77IAZ175SA","color":"Clear Azul","stock":6},{"sku":"S77IAB175SA","color":"Clear Ámbar","stock":7}]},{"id":"sampler-pla-wood","name":"Sampler Grilon3 PLA Wood 17m","category":"Kit / Sampler","variants":[{"sku":"S20ICA175SA","color":"Caoba","stock":0},{"sku":"S20ICE175SA","color":"Cerezo","stock":0},{"sku":"S20INO175SA","color":"Nogal","stock":0},{"sku":"S20IPI175SA","color":"Pino","stock":0}]},{"id":"sampler-pp-t","name":"Sampler Grilon3 PP-T 17m","category":"Kit / Sampler","variants":[{"sku":"S04IBL175SA","color":"Blanco","stock":0},{"sku":"S04ING175SA","color":"Negro","stock":0},{"sku":"S04INT175SA","color":"Natural","stock":0},{"sku":"S04IRJ175SA","color":"Rojo","stock":0},{"sku":"S04IAM175SA","color":"Amarillo","stock":0},{"sku":"S04IVR175SA","color":"Verde","stock":0},{"sku":"S04IAZ175SA","color":"Azul","stock":0},{"sku":"S04IGA175SA","color":"Gris Acero","stock":0}]},{"id":"sampler-silk","name":"Sampler Grilon3 Silk 17m","category":"Kit / Sampler","variants":[{"sku":"S21IZB175SA","color":"Azabache","stock":0},{"sku":"S21IAZ175SA","color":"Azul","stock":0},{"sku":"S21IBL175SA","color":"Blanco Perla","stock":8},{"sku":"S21ICO175SA","color":"Cobre","stock":0},{"sku":"S21IDO175SA","color":"Dorado","stock":7},{"sku":"S21IPL175SA","color":"Platino","stock":0},{"sku":"S21ITF175SA","color":"Tutti Frutti","stock":0},{"sku":"S21IVR175SA","color":"Verde","stock":0}]},{"id":"sampler-simpliflex","name":"Sampler Grilon3 Simpliflex 17m","category":"Kit / Sampler","variants":[{"sku":"S13IBL175SA","color":"Blanco","stock":0},{"sku":"S13ING175SA","color":"Negro","stock":0},{"sku":"S13INT175SA","color":"Natural","stock":0},{"sku":"S13IVR175SA","color":"Verde","stock":0},{"sku":"S13INA175SA","color":"Naranja","stock":0},{"sku":"S13ICE175SA","color":"Celeste","stock":0},{"sku":"S13INV175SA","color":"Nova","stock":0}]}];
+
+      function buildDefaultProducts() {
+        return INITIAL_STOCK_GROUPS.map((g) => {
+          const prices = CORE_PRICES[g.id] || [0, 0];
+          return {
+            id: g.id,
+            name: g.name,
+            cash: prices[0],
+            transfer: prices[1],
+            category: g.category || 'Filamento'
+          };
+        });
+      }
+
+      function buildDefaultStockMap() {
+        const map = {};
+        for (const g of INITIAL_STOCK_GROUPS) {
+          map[g.id] = g.variants.map((v) => ({ sku: v.sku, color: v.color, stock: v.stock }));
+        }
+        return map;
+      }
 
       const COLOR_PRESETS = [
         { label: 'Sin color', value: '', hex: null },
@@ -2505,12 +2800,46 @@
       // ===== STATE =====
       let products = loadJSON(STORAGE_PRODUCTS, null);
       if (!Array.isArray(products) || products.length === 0) {
-        products = DEFAULT_PRODUCTS.map((p) => ({ ...p }));
+        products = buildDefaultProducts();
       }
+
+      let stockMap = loadJSON(STORAGE_STOCK, null);
+      if (!stockMap || typeof stockMap !== 'object' || Array.isArray(stockMap)) {
+        stockMap = buildDefaultStockMap();
+      }
+
+      // One-time merge if user already had previous 7-item products in localStorage
+      if (!safeStorageGet(STORAGE_STOCK_SEEDED)) {
+        const existingIds = new Set(products.map((p) => p.id));
+        const defaults = buildDefaultProducts();
+        for (const dp of defaults) {
+          if (!existingIds.has(dp.id)) {
+            products.push(dp);
+          }
+          if (!Array.isArray(stockMap[dp.id])) {
+            const defGroup = INITIAL_STOCK_GROUPS.find((g) => g.id === dp.id);
+            if (defGroup) {
+              stockMap[dp.id] = defGroup.variants.map((v) => ({ ...v }));
+            }
+          }
+        }
+        try {
+          localStorage.setItem(STORAGE_PRODUCTS, JSON.stringify(products));
+          localStorage.setItem(STORAGE_STOCK, JSON.stringify(stockMap));
+          localStorage.setItem(STORAGE_STOCK_SEEDED, '1');
+          if (!localStorage.getItem(STORAGE_STOCK_SYNC_AT)) {
+            localStorage.setItem(STORAGE_STOCK_SYNC_AT, 'Precargado');
+          }
+        } catch {
+          // Ignore storage errors
+        }
+      }
+
+      let stockSyncLabelText = safeStorageGet(STORAGE_STOCK_SYNC_AT) || 'Precargado';
 
       let cart = loadJSON(STORAGE_CART, []);
       if (!Array.isArray(cart)) cart = [];
-      cart = cart.map((item) => ({ ...item, color: item.color || '' }));
+      cart = cart.map((item) => ({ ...item, color: item.color || '', sku: item.sku || '' }));
 
       let sales = loadJSON(STORAGE_SALES, []);
       if (!Array.isArray(sales)) sales = [];
@@ -2527,6 +2856,7 @@
       let mixedAnchor = 'cash'; // 'cash' | 'transfer'
       let mixedRawInput = '';
       let currentView = 'caja'; // 'caja' | 'ventas'
+      let catalogFilter = 'all'; // 'all' | 'priced' | 'instock'
       let salesFilter = 'today'; // 'today' | 'all'
       let salesSearchQuery = '';
       let isEditMode = false;
@@ -2535,6 +2865,10 @@
       let editingVariantKey = null;
       let variantDraftQty = 1;
       let variantDraftColor = '';
+      let variantDraftSku = '';
+      let variantOnlyInStock = true;
+      let editingQuickPriceProdId = null;
+      let editingStockProdId = null;
       let cashReceived = '';
       let saleNote = '';
       let lastClearedCart = null;
@@ -2548,6 +2882,8 @@
         productGrid: document.getElementById('product-grid'),
         searchInput: document.getElementById('search-input'),
         searchClearBtn: document.getElementById('search-clear-btn'),
+        stockSyncLabel: document.getElementById('stock-sync-label'),
+        syncStockBtn: document.getElementById('sync-stock-btn'),
         toggleEditBtn: document.getElementById('toggle-edit-btn'),
         toggleEditLabel: document.getElementById('toggle-edit-label'),
         editBanner: document.getElementById('edit-banner'),
@@ -2615,6 +2951,13 @@
         variantQtyInc: document.getElementById('variant-qty-inc'),
         variantQtyInput: document.getElementById('variant-qty-input'),
         variantColorInput: document.getElementById('variant-color-input'),
+        variantStockRow: document.getElementById('variant-stock-row'),
+        variantStockLabel: document.getElementById('variant-stock-label'),
+        variantStockDec: document.getElementById('variant-stock-dec'),
+        variantStockInput: document.getElementById('variant-stock-input'),
+        variantStockInc: document.getElementById('variant-stock-inc'),
+        variantStockWarn: document.getElementById('variant-stock-warn'),
+        variantStockFilterBtn: document.getElementById('variant-stock-filter-btn'),
         colorPresetsGrid: document.getElementById('color-presets-grid'),
         variantRemoveBtn: document.getElementById('variant-remove-btn'),
         variantAddAnotherBtn: document.getElementById('variant-add-another-btn'),
@@ -2627,6 +2970,34 @@
         shareWhatsappBtn: document.getElementById('share-whatsapp-btn'),
         shareNativeBtn: document.getElementById('share-native-btn'),
         shareCopyBtn: document.getElementById('share-copy-btn'),
+
+        qpModal: document.getElementById('quick-price-modal'),
+        closeQpBtn: document.getElementById('close-qp-btn'),
+        cancelQpBtn: document.getElementById('cancel-qp-btn'),
+        qpForm: document.getElementById('quick-price-form'),
+        qpProdName: document.getElementById('qp-prod-name'),
+        qpCash: document.getElementById('qp-cash'),
+        qpTransfer: document.getElementById('qp-transfer'),
+        qpPlus5Btn: document.getElementById('qp-plus5-btn'),
+
+        stockModal: document.getElementById('stock-modal'),
+        stockModalTitle: document.getElementById('stock-modal-title'),
+        stockModalSubtitle: document.getElementById('stock-modal-subtitle'),
+        closeStockBtn: document.getElementById('close-stock-btn'),
+        doneStockBtn: document.getElementById('done-stock-btn'),
+        stockModalList: document.getElementById('stock-modal-list'),
+        stockAddColorInput: document.getElementById('stock-add-color-input'),
+        stockAddQtyInput: document.getElementById('stock-add-qty-input'),
+        stockAddBtn: document.getElementById('stock-add-btn'),
+
+        syncModal: document.getElementById('sync-modal'),
+        closeSyncBtn: document.getElementById('close-sync-btn'),
+        syncModalStatus: document.getElementById('sync-modal-status'),
+        copyPhpCorsBtn: document.getElementById('copy-php-cors-btn'),
+        phpCorsSnippet: document.getElementById('php-cors-snippet'),
+        syncPasteInput: document.getElementById('sync-paste-input'),
+        syncRetryBtn: document.getElementById('sync-retry-btn'),
+        syncImportPasteBtn: document.getElementById('sync-import-paste-btn'),
 
         toast: document.getElementById('toast'),
         toastMsg: document.getElementById('toast-msg'),
@@ -2664,6 +3035,11 @@
         safeStorageSet(STORAGE_PRODUCTS, JSON.stringify(products));
       }
 
+      function saveStock() {
+        safeStorageSet(STORAGE_STOCK, JSON.stringify(stockMap));
+        safeStorageSet(STORAGE_STOCK_SEEDED, '1');
+      }
+
       function saveCart() {
         safeStorageSet(STORAGE_CART, JSON.stringify(cart));
       }
@@ -2671,6 +3047,222 @@
       function saveSales() {
         safeStorageSet(STORAGE_SALES, JSON.stringify(sales));
         safeStorageSet(STORAGE_SALE_SEQ, String(saleSeq));
+      }
+
+      function getProductVariants(productId) {
+        const list = stockMap[productId];
+        return Array.isArray(list) ? list : [];
+      }
+
+      function getProductTotalStock(productId) {
+        return getProductVariants(productId).reduce((sum, v) => sum + (Number(v.stock) || 0), 0);
+      }
+
+      function findVariant(productId, colorName, sku) {
+        const variants = getProductVariants(productId);
+        if (variants.length === 0) return null;
+        if (sku) {
+          const bySku = variants.find((v) => v.sku === sku);
+          if (bySku) return bySku;
+        }
+        const low = (colorName || '').trim().toLowerCase();
+        if (!low) return null;
+        return variants.find((v) => v.color.toLowerCase() === low) || null;
+      }
+
+      const COLOR_NAME_FIXES = {
+        'carbon': 'Carbón',
+        'perla calido': 'Perla Cálido',
+        'perla cálido': 'Perla Cálido',
+        'perla frio': 'Perla Frío',
+        'perla frío': 'Perla Frío',
+        'salmon': 'Salmón',
+        'rubi': 'Rubí',
+        'marron': 'Marrón',
+        'optico': 'Óptico',
+        'rustico': 'Rústico',
+        'roby': 'Roby',
+        'bordo': 'Bordó',
+        'azul de prusia': 'Azul de Prusia',
+        'azul prusia': 'Azul de Prusia',
+        'crema del cielo': 'Crema del Cielo',
+        'dulce de leche': 'Dulce de Leche',
+        'gris plata': 'Gris Plata',
+        'gris acero': 'Gris Acero',
+        'gris plomo': 'Gris Plomo',
+        'gris espacial': 'Gris Espacial',
+        'blanco perla': 'Blanco Perla',
+        'tutti frutti': 'Tutti Frutti',
+        'naranja fluo': 'Naranja Fluo',
+        'verde fluo': 'Verde Fluo',
+        'amarillo fluo': 'Amarillo Fluo',
+        'magenta fluo': 'Magenta Fluo',
+        'verde manzana': 'Verde Manzana',
+        'verde aviador': 'Verde Aviador',
+        'verde lima': 'Verde Lima',
+        'azul traful': 'Azul Traful',
+        'rojo carmin': 'Rojo Carmín',
+        'naranja praga': 'Naranja Praga',
+        'clear cristal': 'Clear Cristal',
+        'clear rojo': 'Clear Rojo',
+        'clear amarillo': 'Clear Amarillo',
+        'clear verde': 'Clear Verde',
+        'clear azul': 'Clear Azul',
+        'clear ambar': 'Clear Ámbar',
+        'clear ámbar': 'Clear Ámbar'
+      };
+
+      function cleanParsedColor(raw) {
+        let c = String(raw || '').trim();
+        c = c.replace(/^_?\d+_(?:G\d+_|SL_)?/i, '').replace(/_/g, ' ').trim();
+        const low = c.toLowerCase();
+        if (COLOR_NAME_FIXES[low]) return COLOR_NAME_FIXES[low];
+        return c.split(/\s+/).map((w) => {
+          const wl = w.toLowerCase();
+          if (wl === 'de' || wl === 'del' || wl === 'x' || wl === 'por') return wl;
+          return wl.charAt(0).toUpperCase() + wl.slice(1);
+        }).join(' ');
+      }
+
+      function classifyStockRow(rawName) {
+        const n = String(rawName || '').replace(/\s+/g, ' ').toUpperCase().trim();
+        const base = n.replace(/\s*(?:1\.75|\.75)\s*MM\s*X\s*(?:1\s*KG|500\s*GR?|750\s*G|2\.5\s*KG|4\s*KG|17\s*M)\s*$/i, '').trim();
+
+        if (base.startsWith('3NMAX PLA+ SE ')) return ['3nmax-750g', 'Filamento 3NMax 750g', 'Filamento', cleanParsedColor(base.slice(14))];
+        if (base.startsWith('3NMAX PLA+ ')) return ['3nmax-1kg', 'Filamento 3NMax 1kg', 'Filamento', cleanParsedColor(base.slice(11))];
+        if (base.startsWith('3N3 PLA ')) {
+          if (n.includes('X 500')) return ['3n3-500g', 'Filamento 3N3 PLA 500g', 'Filamento', cleanParsedColor(base.slice(8))];
+          return ['3n3', 'Filamento 3N3', 'Filamento', cleanParsedColor(base.slice(8))];
+        }
+        if (base.startsWith('GRILON3 BOUTIQUE ')) return ['grilon-boutique', 'Filamento Grilon Boutique', 'Filamento', cleanParsedColor(base.slice(17))];
+        if (base.startsWith('GRILON3 PLA 870 ')) return ['grilon-pla870', 'Grilon3 PLA 870 1kg', 'Filamento', cleanParsedColor(base.slice(16))];
+        if (base.startsWith('GRILON3 PLA WOOD ')) return ['grilon-wood', 'Grilon3 PLA Wood 1kg', 'Filamento', cleanParsedColor(base.slice(17))];
+        if (base.startsWith('GRILON3 PLA ')) return ['grilon-pla', 'Filamento Grilon PLA común', 'Filamento', cleanParsedColor(base.slice(12))];
+        if (base.startsWith('NUEVO GRILON3 PLA PRO HYPER ')) return ['hyper-pro', 'Filamento Hyper Pro', 'Filamento', cleanParsedColor(base.slice(28))];
+        if (base.startsWith('GRILON3 SILK ')) {
+          const col = cleanParsedColor(base.slice(13));
+          if (col.toLowerCase().includes('azabache') || col.toLowerCase().includes('blanco')) {
+            return ['silk-bn', 'Filamento Silk (Blanco / Negro)', 'Filamento', col];
+          }
+          return ['silk-color', 'Filamento Silk (menos blanco y negro)', 'Filamento', col];
+        }
+        if (base.startsWith('KIT LAPIZ 3D GRILON3 PLA ')) return ['grilon-kits', 'Grilon3 Kits Lápiz 3D', 'Kit / Sampler', cleanParsedColor(base.slice(25))];
+        if (base.startsWith('SAMPLER GRILON3 ')) {
+          const rest = base.slice(16);
+          const matMap = { 'ACETAL-POM': 'Acetal-POM', 'ASA': 'ASA', 'PETG': 'PETG', 'PP-T': 'PP-T', 'PLA WOOD': 'PLA Wood' };
+          let mat = '';
+          let col = '';
+          if (rest.startsWith('PLA WOOD ')) {
+            mat = 'PLA Wood';
+            col = rest.slice(9);
+          } else {
+            const sp = rest.indexOf(' ');
+            const rawMat = sp === -1 ? rest : rest.slice(0, sp);
+            mat = matMap[rawMat] || (rawMat.charAt(0) + rawMat.slice(1).toLowerCase());
+            col = sp === -1 ? '' : rest.slice(sp + 1);
+          }
+          return ['sampler-' + mat.toLowerCase().replace(/\s+/g, '-'), `Sampler Grilon3 ${mat} 17m`, 'Kit / Sampler', cleanParsedColor(col)];
+        }
+
+        const prefixRules = [
+          ['NUEVO MAXI GRILON3 PLA PRO HYPER ', 'maxi-hyper', 'Maxifill Grilon3 Hyper Pro 2.5kg', 'Bulk / Mega'],
+          ['MAXI GRILON3 PETG ', 'maxi-petg', 'Maxifill Grilon3 PETG 2.5kg', 'Bulk / Mega'],
+          ['MAXI GRILON3 ABS ', 'maxi-abs', 'Maxifill Grilon3 ABS 2.5kg', 'Bulk / Mega'],
+          ['MEGAFILL GRILON3 PLA ', 'mega-pla', 'Megafill Grilon3 PLA 4kg', 'Bulk / Mega'],
+          ['MEGAFILL GRILON3 BOUTIQUE ', 'mega-boutique', 'Megafill Grilon3 Boutique 4kg', 'Bulk / Mega'],
+          ['MEGAFILL GRILON3 PETG ', 'mega-petg', 'Megafill Grilon3 PETG 4kg', 'Bulk / Mega'],
+          ['NUEVO 3N3 TPU ', '3n3-tpu-1kg', '3N3 TPU 1kg', 'Filamento'],
+          ['3N3 TPU ', '3n3-tpu-500g', '3N3 TPU 500g', 'Filamento'],
+          ['3N3 EPET ', '3n3-epet', '3N3 EPET 1kg', 'Filamento'],
+          ['3N3 PETG ', '3n3-petg', '3N3 PETG 1kg', 'Filamento'],
+          ['3NFLEX PLA+ ', '3nflex', '3NFlex PLA+ 1kg', 'Filamento'],
+          ['GRILON3 ABS ', 'grilon-abs', 'Grilon3 ABS 1kg', 'Filamento'],
+          ['GRILON3 PETG ', 'grilon-petg', 'Grilon3 PETG 1kg', 'Filamento'],
+          ['GRILON3 HIPS ', 'grilon-hips', 'Grilon3 HIPS 1kg', 'Filamento'],
+          ['GRILON3 NYLON12 ', 'grilon-nylon12', 'Grilon3 Nylon 12 1kg', 'Filamento'],
+          ['GRILON3 NYLON6 ', 'grilon-nylon6', 'Grilon3 Nylon 6 1kg', 'Filamento'],
+          ['GRILON3 ASTRA ', 'grilon-astra', 'Grilon3 Astra 1kg', 'Filamento'],
+          ['GRILON3 ZETA ', 'grilon-zeta', 'Grilon3 Zeta 1kg', 'Filamento'],
+          ['GRILON3 PVA ', 'grilon-pva', 'Grilon3 PVA 500g', 'Filamento'],
+          ['GRILON3 SIMPLIFLEX ', 'grilon-simpliflex', 'Grilon3 Simpliflex 1kg', 'Filamento'],
+          ['GRILON3 ACETAL-POM ', 'grilon-acetal', 'Grilon3 Acetal-POM 1kg', 'Filamento'],
+          ['GRILON3 PP-T ', 'grilon-ppt', 'Grilon3 PP-T 1kg', 'Filamento']
+        ];
+        for (const [pfx, gid, gname, cat] of prefixRules) {
+          if (base.startsWith(pfx)) {
+            return [gid, gname, cat, cleanParsedColor(base.slice(pfx.length))];
+          }
+        }
+        return ['other', 'Otros Filamentos', 'Otro', cleanParsedColor(base)];
+      }
+
+      function parseGrilonStockTextOrHtml(rawInput) {
+        const raw = String(rawInput || '').trim();
+        if (!raw) return { groups: [], skuCount: 0 };
+
+        const parsedRows = [];
+        if (/<tr[\s>]/i.test(raw)) {
+          const doc = new DOMParser().parseFromString(raw, 'text/html');
+          doc.querySelectorAll('tr').forEach((tr) => {
+            const cells = Array.from(tr.querySelectorAll('th,td')).map((c) => (c.textContent || '').trim());
+            if (cells.length >= 3) parsedRows.push(cells);
+          });
+        } else {
+          raw.split(/\r?\n/).forEach((line) => {
+            const parts = line.split('\t').map((s) => s.trim());
+            if (parts.length >= 3) {
+              parsedRows.push(parts);
+            } else {
+              const m = line.trim().match(/^([A-Z]\d{2}[A-Z0-9]{5,})\s+(.+?)\s+(-?\d+)?$/i);
+              if (m) parsedRows.push([m[1], m[2], m[3] || '0']);
+            }
+          });
+        }
+
+        const groupsMap = new Map();
+        let skuCount = 0;
+
+        for (const cells of parsedRows) {
+          const sku = (cells[0] || '').trim();
+          const desc = (cells[1] || '').trim();
+          const qtyRaw = (cells[2] || '').trim();
+          if (!sku || sku === 'SKU Fábrica' || sku === 'Código' || !desc) continue;
+
+          const [gid, gname, cat, color] = classifyStockRow(desc);
+          const qty = /^-?\d+$/.test(qtyRaw) ? Math.max(0, parseInt(qtyRaw, 10)) : 0;
+
+          if (!groupsMap.has(gid)) {
+            groupsMap.set(gid, { id: gid, name: gname, category: cat, variants: [] });
+          }
+          groupsMap.get(gid).variants.push({ sku, color, stock: qty });
+          skuCount += 1;
+        }
+
+        return { groups: Array.from(groupsMap.values()), skuCount };
+      }
+
+      function applyParsedStockGroups(groups) {
+        const existingProdIds = new Set(products.map((p) => p.id));
+        for (const g of groups) {
+          stockMap[g.id] = g.variants.map((v) => ({ ...v }));
+          if (!existingProdIds.has(g.id)) {
+            const prices = CORE_PRICES[g.id] || [0, 0];
+            products.push({
+              id: g.id,
+              name: g.name,
+              cash: prices[0],
+              transfer: prices[1],
+              category: g.category
+            });
+            existingProdIds.add(g.id);
+          }
+        }
+        const nowLabel = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+        stockSyncLabelText = `Hoy ${nowLabel}`;
+        safeStorageSet(STORAGE_STOCK_SYNC_AT, stockSyncLabelText);
+        saveProducts();
+        saveStock();
+        renderAll();
       }
 
       function esc(str) {
@@ -2724,20 +3316,26 @@
       function getColorHex(colorName) {
         const c = (colorName || '').trim().toLowerCase();
         if (!c) return null;
-        if (c.includes('blanco') || c.includes('white')) return '#ffffff';
-        if (c.includes('negro') || c.includes('black')) return '#111827';
-        if (c.includes('gris') || c.includes('plata') || c.includes('silver')) return '#94a3b8';
-        if (c.includes('rojo') || c.includes('red') || c.includes('bordo')) return '#ef4444';
-        if (c.includes('celeste') || c.includes('cian')) return '#38bdf8';
-        if (c.includes('azul') || c.includes('blue')) return '#2563eb';
+        if (c.includes('blanco') || c.includes('perla') || c.includes('white') || c.includes('hueso')) return '#ffffff';
+        if (c.includes('negro') || c.includes('azabache') || c.includes('carb') || c.includes('dark') || c.includes('noche') || c.includes('black')) return '#111827';
+        if (c.includes('gris') || c.includes('plata') || c.includes('platino') || c.includes('titanio') || c.includes('silver')) return '#94a3b8';
+        if (c.includes('rub') || c.includes('carm') || c.includes('frutilla') || c.includes('roby')) return '#e11d48';
+        if (c.includes('rojo') || c.includes('red') || c.includes('bord')) return '#dc2626';
+        if (c.includes('turquesa') || c.includes('acqua') || c.includes('calipso') || c.includes('caribe')) return '#06b6d4';
+        if (c.includes('celeste') || c.includes('crema del cielo') || c.includes('cian')) return '#38bdf8';
+        if (c.includes('zafiro') || c.includes('prusia') || c.includes('traful') || c.includes('azul') || c.includes('blue')) return '#2563eb';
+        if (c.includes('esmeralda') || c.includes('jade')) return '#10b981';
+        if (c.includes('lima') || c.includes('manzana')) return '#84cc16';
         if (c.includes('verde') || c.includes('green')) return '#16a34a';
         if (c.includes('amarillo') || c.includes('yellow')) return '#facc15';
-        if (c.includes('naranja') || c.includes('orange')) return '#f97316';
-        if (c.includes('violeta') || c.includes('morado') || c.includes('lila')) return '#8b5cf6';
-        if (c.includes('rosa') || c.includes('fucsia')) return '#ec4899';
-        if (c.includes('oro') || c.includes('dorado') || c.includes('cobre')) return '#d97706';
-        if (c.includes('marr') || c.includes('caf')) return '#78350f';
-        if (c.includes('natural') || c.includes('transp')) return '#e2e8f0';
+        if (c.includes('ámbar') || c.includes('ambar') || c.includes('naranja') || c.includes('orange')) return '#f97316';
+        if (c.includes('salm') || c.includes('piel')) return '#fda4af';
+        if (c.includes('violeta') || c.includes('morado') || c.includes('lila') || c.includes('lavanda') || c.includes('uva') || c.includes('nebula')) return '#8b5cf6';
+        if (c.includes('rosa') || c.includes('fucsia') || c.includes('magenta')) return '#ec4899';
+        if (c.includes('oro') || c.includes('dorado') || c.includes('cobre') || c.includes('bronce')) return '#d97706';
+        if (c.includes('marr') || c.includes('caf') || c.includes('chocol') || c.includes('habano') || c.includes('dulce') || c.includes('caoba') || c.includes('nogal') || c.includes('cerezo') || c.includes('rústico') || c.includes('rustico')) return '#78350f';
+        if (c.includes('arena') || c.includes('pino')) return '#e7d3b0';
+        if (c.includes('natural') || c.includes('cristal') || c.includes('óptico') || c.includes('optico') || c.includes('clear') || c.includes('nova')) return '#e2e8f0';
         return null;
       }
 
@@ -2908,11 +3506,12 @@
       }
 
       // ===== CART ACTIONS =====
-      function addProductToCart(productId, { forceNewLine = false, color = '' } = {}) {
+      function addProductToCart(productId, { forceNewLine = false, color = '', sku = '' } = {}) {
         const prod = products.find((p) => p.id === productId);
         if (!prod) return null;
 
-        if (!forceNewLine) {
+        const cleanCol = color.trim();
+        if (!forceNewLine && !cleanCol) {
           const uncolored = cart.find((c) => c.productId === productId && !(c.color || '').trim());
           if (uncolored) {
             uncolored.qty += 1;
@@ -2923,11 +3522,24 @@
           }
         }
 
+        if (cleanCol) {
+          const sameCol = cart.find((c) => c.productId === productId && (c.color || '').trim().toLowerCase() === cleanCol.toLowerCase());
+          if (sameCol) {
+            sameCol.qty += 1;
+            if (sku && !sameCol.sku) sameCol.sku = sku;
+            saveCart();
+            renderAll();
+            pulseTotals();
+            return sameCol.key;
+          }
+        }
+
         const newItem = {
           key: uid('item'),
           productId: prod.id,
           name: prod.name,
-          color: color.trim(),
+          color: cleanCol,
+          sku: sku || '',
           cash: prod.cash,
           transfer: prod.transfer,
           qty: 1
@@ -3092,6 +3704,25 @@
         const snapshotPaid = cashReceived;
         const snapshotMixedRaw = mixedRawInput;
 
+        // Deduct sold quantities from matching color stock
+        const stockDeductions = [];
+        for (const item of cart) {
+          if (!item.productId) continue;
+          const variants = getProductVariants(item.productId);
+          if (variants.length === 0) continue;
+          const v = findVariant(item.productId, item.color, item.sku);
+          if (v) {
+            stockDeductions.push({
+              productId: item.productId,
+              sku: v.sku,
+              color: v.color,
+              prevStock: Number(v.stock) || 0
+            });
+            v.stock = Math.max(0, (Number(v.stock) || 0) - item.qty);
+          }
+        }
+        if (stockDeductions.length > 0) saveStock();
+
         sales.unshift(saleRecord);
         saveSales();
 
@@ -3108,10 +3739,20 @@
         renderAll();
         closeSheet();
 
-        showToast(`Venta #${saleRecord.number} cerrada (${formatARS(saleRecord.totalAmount)})`, 'Deshacer', () => {
+        const deductedCount = stockDeductions.length;
+        const toastText = deductedCount > 0
+          ? `Venta #${saleRecord.number} cerrada (${formatARS(saleRecord.totalAmount)}) · Stock descontado`
+          : `Venta #${saleRecord.number} cerrada (${formatARS(saleRecord.totalAmount)})`;
+
+        showToast(toastText, 'Deshacer', () => {
           sales = sales.filter((s) => s.id !== saleRecord.id);
           saleSeq = Math.max(0, saleSeq - 1);
           saveSales();
+          for (const d of stockDeductions) {
+            const v = findVariant(d.productId, d.color, d.sku);
+            if (v) v.stock = d.prevStock;
+          }
+          if (stockDeductions.length > 0) saveStock();
           cart = snapshotCart;
           saleNote = snapshotNote;
           cashReceived = snapshotPaid;
@@ -3277,19 +3918,197 @@
         syncBodyScrollLock();
       }
 
+      // ===== QUICK PRICE, STOCK & SYNC MODALS =====
+      function openQuickPriceModal(prodId) {
+        const prod = products.find((p) => p.id === prodId);
+        if (!prod) return;
+        editingQuickPriceProdId = prodId;
+        els.qpProdName.textContent = prod.name;
+        els.qpCash.value = prod.cash > 0 ? String(prod.cash) : '';
+        els.qpTransfer.value = prod.transfer > 0 ? String(prod.transfer) : '';
+        els.qpModal.classList.add('open');
+        syncBodyScrollLock();
+        setTimeout(() => els.qpCash.focus(), 40);
+      }
+
+      function closeQuickPriceModal() {
+        editingQuickPriceProdId = null;
+        els.qpModal.classList.remove('open');
+        syncBodyScrollLock();
+      }
+
+      function renderStockModalList() {
+        const prod = products.find((p) => p.id === editingStockProdId);
+        if (!prod) return;
+        const variants = getProductVariants(prod.id);
+        const total = variants.reduce((s, v) => s + (Number(v.stock) || 0), 0);
+        els.stockModalSubtitle.textContent = `${variants.length} colores · ${total.toLocaleString('es-AR')} unidades totales`;
+
+        if (variants.length === 0) {
+          els.stockModalList.innerHTML = `<div style="font-size:0.84rem;color:var(--text-muted);text-align:center;padding:12px;">Sin colores cargados todavía. Agregá uno abajo.</div>`;
+          return;
+        }
+
+        els.stockModalList.innerHTML = variants.map((v, idx) => `
+          <div class="stock-list-row" data-stock-idx="${idx}">
+            <div style="display:flex;align-items:center;gap:7px;min-width:0;">
+              ${renderColorDot(v.color)}
+              <div style="min-width:0;">
+                <div style="font-size:0.86rem;font-weight:600;word-break:break-word;">${esc(v.color)}</div>
+                ${v.sku ? `<div style="font-size:0.7rem;color:var(--text-muted);">${esc(v.sku)}</div>` : ''}
+              </div>
+            </div>
+            <div class="card-stepper">
+              <button type="button" class="qty-btn" data-stock-dec="${idx}" aria-label="Restar 1 a ${esc(v.color)}">−</button>
+              <input type="number" class="qty-inline-input tabular" data-stock-val="${idx}" min="0" step="1" inputmode="numeric" value="${Number(v.stock) || 0}" aria-label="Stock de ${esc(v.color)}">
+              <button type="button" class="qty-btn" data-stock-inc="${idx}" aria-label="Sumar 1 a ${esc(v.color)}">+</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      function openStockModal(prodId) {
+        const prod = products.find((p) => p.id === prodId);
+        if (!prod) return;
+        editingStockProdId = prodId;
+        els.stockModalTitle.textContent = `Stock · ${prod.name}`;
+        els.stockAddColorInput.value = '';
+        els.stockAddQtyInput.value = '1';
+        renderStockModalList();
+        els.stockModal.classList.add('open');
+        syncBodyScrollLock();
+      }
+
+      function closeStockModal() {
+        editingStockProdId = null;
+        els.stockModal.classList.remove('open');
+        syncBodyScrollLock();
+        renderAll();
+      }
+
+      function openSyncModal(statusHtml) {
+        els.syncModalStatus.innerHTML = statusHtml || '';
+        els.syncModal.classList.add('open');
+        syncBodyScrollLock();
+      }
+
+      function closeSyncModal() {
+        els.syncModal.classList.remove('open');
+        syncBodyScrollLock();
+      }
+
+      async function syncStockFromRemote() {
+        els.syncStockBtn.classList.add('is-syncing');
+        els.syncStockBtn.disabled = true;
+        els.syncRetryBtn.disabled = true;
+
+        try {
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), 12000);
+          const resp = await fetch(STOCK_SOURCE_URL, { cache: 'no-store', signal: controller.signal });
+          clearTimeout(timer);
+          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+          const htmlText = await resp.text();
+          const parsed = parseGrilonStockTextOrHtml(htmlText);
+          if (parsed.skuCount === 0) throw new Error('No se encontraron filas de stock en la página');
+          applyParsedStockGroups(parsed.groups);
+          closeSyncModal();
+          showToast(`Stock actualizado en vivo (${parsed.skuCount} SKUs)`);
+        } catch (err) {
+          openSyncModal(
+            `No se pudo leer directo desde <strong>filamentos3d.com.py/grilon3.php</strong> (${esc(err && err.message ? err.message : 'CORS / red')}). ` +
+            `Agregá estas líneas arriba de <code>grilon3.php</code> en Hostinger o pegá la tabla copiada abajo:`
+          );
+        } finally {
+          els.syncStockBtn.classList.remove('is-syncing');
+          els.syncStockBtn.disabled = false;
+          els.syncRetryBtn.disabled = false;
+        }
+      }
+
       // ===== VARIANT / COLOR MODAL =====
+      function updateVariantStockUI() {
+        const item = cart.find((c) => c.key === editingVariantKey);
+        if (!item || !item.productId) {
+          els.variantStockRow.style.display = 'none';
+          els.variantStockWarn.style.display = 'none';
+          return;
+        }
+        const colorTxt = els.variantColorInput.value.trim();
+        if (!colorTxt) {
+          els.variantStockRow.style.display = 'none';
+          els.variantStockWarn.style.display = 'none';
+          return;
+        }
+
+        const v = findVariant(item.productId, colorTxt, variantDraftSku);
+        if (v) {
+          els.variantStockRow.style.display = 'flex';
+          els.variantStockLabel.textContent = `Stock "${v.color}":`;
+          if (document.activeElement !== els.variantStockInput) {
+            els.variantStockInput.value = String(Number(v.stock) || 0);
+          }
+          const reqQty = Math.max(1, Math.floor(Number(els.variantQtyInput.value) || variantDraftQty || 1));
+          if (reqQty > (Number(v.stock) || 0)) {
+            els.variantStockWarn.style.display = 'block';
+            els.variantStockWarn.textContent = `Pedís ${reqQty} u. y hay ${Number(v.stock) || 0} en stock (quedará en 0 al cerrar).`;
+          } else {
+            els.variantStockWarn.style.display = 'none';
+          }
+        } else {
+          els.variantStockRow.style.display = 'none';
+          els.variantStockWarn.style.display = 'none';
+        }
+      }
+
       function renderColorPresets() {
+        const item = cart.find((c) => c.key === editingVariantKey);
+        const variants = (item && item.productId) ? getProductVariants(item.productId) : [];
         const current = variantDraftColor.trim().toLowerCase();
-        els.colorPresetsGrid.innerHTML = COLOR_PRESETS.map((preset) => {
-          const isSelected = preset.value.toLowerCase() === current;
-          const dot = preset.hex ? `<span class="color-dot" style="background:${preset.hex};"></span>` : '';
-          return `
-            <button type="button" class="color-preset-btn ${isSelected ? 'selected' : ''}" data-preset-color="${esc(preset.value)}">
-              ${dot}
-              <span>${esc(preset.label)}</span>
+
+        if (variants.length > 0) {
+          const hasAnyInStock = variants.some((v) => (Number(v.stock) || 0) > 0);
+          els.variantStockFilterBtn.style.display = hasAnyInStock ? 'inline-flex' : 'none';
+          const showOnlyInStock = hasAnyInStock && variantOnlyInStock;
+          els.variantStockFilterBtn.classList.toggle('active', showOnlyInStock);
+
+          const visible = showOnlyInStock
+            ? variants.filter((v) => (Number(v.stock) || 0) > 0 || v.color.toLowerCase() === current)
+            : variants;
+
+          const clearChip = `
+            <button type="button" class="color-preset-btn ${current === '' ? 'selected' : ''}" data-preset-color="" data-preset-sku="">
+              <span>Sin color</span>
             </button>
           `;
-        }).join('');
+
+          els.colorPresetsGrid.innerHTML = clearChip + visible.map((v) => {
+            const isSelected = v.color.toLowerCase() === current;
+            const dot = renderColorDot(v.color);
+            const qty = Number(v.stock) || 0;
+            return `
+              <button type="button" class="color-preset-btn ${isSelected ? 'selected' : ''} ${qty === 0 ? 'out-of-stock' : ''}" data-preset-color="${esc(v.color)}" data-preset-sku="${esc(v.sku || '')}">
+                ${dot}
+                <span>${esc(v.color)}</span>
+                <span class="stock-pill tabular">${qty}</span>
+              </button>
+            `;
+          }).join('');
+        } else {
+          els.variantStockFilterBtn.style.display = 'none';
+          els.colorPresetsGrid.innerHTML = COLOR_PRESETS.map((preset) => {
+            const isSelected = preset.value.toLowerCase() === current;
+            const dot = preset.hex ? `<span class="color-dot" style="background:${preset.hex};"></span>` : '';
+            return `
+              <button type="button" class="color-preset-btn ${isSelected ? 'selected' : ''}" data-preset-color="${esc(preset.value)}" data-preset-sku="">
+                ${dot}
+                <span>${esc(preset.label)}</span>
+              </button>
+            `;
+          }).join('');
+        }
+
+        updateVariantStockUI();
       }
 
       function openVariantModal(cartKey) {
@@ -3300,6 +4119,8 @@
         editingVariantKey = cartKey;
         variantDraftQty = item.qty;
         variantDraftColor = item.color || '';
+        variantDraftSku = item.sku || '';
+        variantOnlyInStock = true;
 
         els.variantModalTitle.textContent = info.name;
         els.variantModalSubtitle.textContent = `${formatARS(info.cash)} Efec. · ${formatARS(info.transfer)} Transf.`;
@@ -3320,6 +4141,8 @@
         const color = els.variantColorInput.value.trim();
         cart[idx].qty = qty;
         cart[idx].color = color;
+        const matched = cart[idx].productId ? findVariant(cart[idx].productId, color, variantDraftSku) : null;
+        cart[idx].sku = matched ? matched.sku : '';
         saveCart();
         return cart[idx];
       }
@@ -3331,6 +4154,7 @@
           pulseTotals();
         }
         editingVariantKey = null;
+        variantDraftSku = '';
         els.variantModal.classList.remove('open');
         syncBodyScrollLock();
       }
@@ -3364,29 +4188,80 @@
         });
       }
 
-      function renderCatalog() {
+      function getSortedFilteredCatalog() {
         const q = searchQuery.trim().toLowerCase();
-        const filtered = q
-          ? products.filter((p) => p.name.toLowerCase().includes(q) || (p.category && p.category.toLowerCase().includes(q)))
-          : products;
+        const pricedCount = products.filter((p) => p.cash > 0 || p.transfer > 0).length;
+        const inStockCount = products.filter((p) => getProductTotalStock(p.id) > 0).length;
 
-        if (filtered.length === 0) {
+        const filterBtns = document.querySelectorAll('[data-cat-filter]');
+        filterBtns.forEach((btn) => {
+          const key = btn.dataset.catFilter;
+          btn.classList.toggle('active', key === catalogFilter);
+          if (key === 'all') btn.textContent = `Todos (${products.length})`;
+          if (key === 'priced') btn.textContent = `Con precio (${pricedCount})`;
+          if (key === 'instock') btn.textContent = `Con stock (${inStockCount})`;
+        });
+        els.stockSyncLabel.textContent = stockSyncLabelText ? `Stock: ${stockSyncLabelText}` : '';
+
+        const filtered = [];
+        for (const p of products) {
+          const hasPrice = p.cash > 0 || p.transfer > 0;
+          const variants = getProductVariants(p.id);
+          const totalStock = variants.reduce((s, v) => s + (Number(v.stock) || 0), 0);
+
+          if (!q) {
+            if (catalogFilter === 'priced' && !hasPrice) continue;
+            if (catalogFilter === 'instock' && totalStock <= 0) continue;
+            filtered.push({ prod: p, matchedVariants: [] });
+          } else {
+            const nameMatch = p.name.toLowerCase().includes(q) || (p.category && p.category.toLowerCase().includes(q));
+            const matchedVars = variants.filter((v) =>
+              v.color.toLowerCase().includes(q) || (v.sku && v.sku.toLowerCase().includes(q))
+            );
+            if (!nameMatch && matchedVars.length === 0) continue;
+            if (catalogFilter === 'priced' && !hasPrice) continue;
+            if (catalogFilter === 'instock' && totalStock <= 0) continue;
+            filtered.push({ prod: p, matchedVariants: matchedVars });
+          }
+        }
+
+        // Priced items first, preserving relative order within each tier
+        filtered.sort((a, b) => {
+          const ap = (a.prod.cash > 0 || a.prod.transfer > 0) ? 0 : 1;
+          const bp = (b.prod.cash > 0 || b.prod.transfer > 0) ? 0 : 1;
+          return ap - bp;
+        });
+
+        return filtered;
+      }
+
+      function renderCatalog() {
+        const entries = getSortedFilteredCatalog();
+
+        if (entries.length === 0) {
           els.productGrid.innerHTML = `
             <div class="empty-catalog">
               <div style="font-weight:600;color:var(--text);margin-bottom:4px;">Sin coincidencias</div>
-              <div style="font-size:0.84rem;margin-bottom:12px;">No se encontró ningún producto para "${esc(searchQuery)}".</div>
-              <button type="button" class="btn btn-sm btn-primary" id="empty-add-btn">+ Agregar producto nuevo</button>
+              <div style="font-size:0.84rem;margin-bottom:12px;">No se encontró ningún producto${searchQuery.trim() ? ` para "${esc(searchQuery)}"` : ' con este filtro'}.</div>
+              ${searchQuery.trim() ? '<button type="button" class="btn btn-sm btn-primary" id="empty-add-btn">+ Agregar producto nuevo</button>' : '<button type="button" class="btn btn-sm" id="empty-reset-filter-btn">Ver todos</button>'}
             </div>
           `;
           const emptyBtn = document.getElementById('empty-add-btn');
           if (emptyBtn) {
             emptyBtn.addEventListener('click', () => openProductModal({ prefillName: searchQuery.trim(), saveToCatalog: true }));
           }
+          const resetBtn = document.getElementById('empty-reset-filter-btn');
+          if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+              catalogFilter = 'all';
+              renderCatalog();
+            });
+          }
           return;
         }
 
         if (isEditMode) {
-          renderEditCatalog(filtered);
+          renderEditCatalog(entries.map((e) => e.prod));
           return;
         }
 
@@ -3394,9 +4269,12 @@
         const isCashDisplay = unitMode === 'efectivo';
         const isMixedProp = paymentMode === 'mixto' && mixedPriceRule === 'proporcional';
 
-        const html = filtered.map((prod) => {
+        const html = entries.map(({ prod, matchedVariants }) => {
           const matchingRows = cart.filter((c) => c.productId === prod.id);
           const totalQty = matchingRows.reduce((sum, r) => sum + r.qty, 0);
+          const variants = getProductVariants(prod.id);
+          const totalStock = variants.reduce((s, v) => s + (Number(v.stock) || 0), 0);
+          const hasPrice = prod.cash > 0 || prod.transfer > 0;
           const activePrice = isCashDisplay ? prod.cash : prod.transfer;
           const altPrice = isCashDisplay ? prod.transfer : prod.cash;
           const altLabel = isCashDisplay ? 'Transf' : 'Efec';
@@ -3404,6 +4282,53 @@
           let cardStateClass = '';
           if (totalQty > 0) {
             cardStateClass = paymentMode === 'mixto' ? 'in-cart-mixed' : (isCashDisplay ? 'in-cart-cash' : 'in-cart-transfer');
+          }
+
+          let priceBlockHtml = '';
+          if (hasPrice) {
+            priceBlockHtml = `
+              <div class="product-prices">
+                <div class="price-active-group">
+                  <span class="price-main tabular ${activeClass}">${formatARS(activePrice)}</span>
+                  <span class="price-mode-label">${isCashDisplay ? 'Efectivo' : 'Transf.'}</span>
+                </div>
+                <span class="price-alt tabular">${altLabel}: ${formatARS(altPrice)}</span>
+              </div>
+            `;
+          } else {
+            priceBlockHtml = `
+              <div class="product-prices">
+                <span class="price-missing">Sin precio cargado</span>
+              </div>
+            `;
+          }
+
+          let stockLineHtml = '';
+          if (variants.length > 0) {
+            const inStockColors = variants.filter((v) => (Number(v.stock) || 0) > 0).length;
+            stockLineHtml = `
+              <div class="stock-summary-line tabular">
+                <span class="${totalStock > 0 ? 'stock-count-ok' : 'stock-count-zero'}">
+                  ${totalStock > 0 ? `Stock: ${totalStock.toLocaleString('es-AR')} u.` : 'Sin stock'}
+                </span>
+                <span>· ${inStockColors}/${variants.length} colores disp.</span>
+              </div>
+            `;
+          }
+
+          let searchMatchStrip = '';
+          if (matchedVariants.length > 0 && searchQuery.trim()) {
+            const topMatches = matchedVariants.slice(0, 6);
+            searchMatchStrip = `
+              <div class="card-variants-strip">
+                ${topMatches.map((v) => `
+                  <button type="button" class="variant-chip ${(Number(v.stock) || 0) === 0 ? 'out-of-stock' : ''}" data-quick-add-prod="${esc(prod.id)}" data-quick-add-color="${esc(v.color)}" data-quick-add-sku="${esc(v.sku || '')}" title="Sumar ${esc(v.color)}">
+                    ${renderColorDot(v.color)}
+                    <span>${esc(v.color)} (${Number(v.stock) || 0})</span>
+                  </button>
+                `).join('')}
+              </div>
+            `;
           }
 
           let variantsStrip = '';
@@ -3431,7 +4356,9 @@
           let footerHtml = '';
           if (totalQty === 0) {
             footerHtml = `
-              <span class="card-footer-status">Tocá para sumar</span>
+              ${!hasPrice
+                ? `<button type="button" class="chip-btn" data-quick-price="${esc(prod.id)}">Fijar precio</button>`
+                : `<span class="card-footer-status">Tocá para sumar</span>`}
               <button type="button" class="btn btn-sm" data-add-product="${esc(prod.id)}" aria-label="Agregar ${esc(prod.name)}">+ Sumar</button>
             `;
           } else if (matchingRows.length === 1) {
@@ -3463,14 +4390,10 @@
                   <div class="product-name">${esc(prod.name)}</div>
                   <span class="tag-pill">${esc(prod.category || 'Filamento')}</span>
                 </div>
-                <div class="product-prices">
-                  <div class="price-active-group">
-                    <span class="price-main tabular ${activeClass}">${formatARS(activePrice)}</span>
-                    <span class="price-mode-label">${isCashDisplay ? 'Efectivo' : 'Transf.'}</span>
-                  </div>
-                  <span class="price-alt tabular">${altLabel}: ${formatARS(altPrice)}</span>
-                </div>
+                ${priceBlockHtml}
+                ${stockLineHtml}
               </button>
+              ${searchMatchStrip}
               ${variantsStrip}
               <div class="card-footer-bar">
                 ${footerHtml}
@@ -3483,33 +4406,38 @@
       }
 
       function renderEditCatalog(list) {
-        const html = list.map((prod) => `
-          <div class="edit-card" data-edit-id="${esc(prod.id)}">
-            <div class="edit-card-top">
-              <input type="text" class="field-input" data-field="name" value="${esc(prod.name)}" aria-label="Nombre del producto" placeholder="Nombre del producto">
-              <button type="button" class="btn btn-icon btn-danger-ghost" data-delete-prod="${esc(prod.id)}" title="Eliminar producto" aria-label="Eliminar ${esc(prod.name)}">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="3 6 5 6 21 6"/>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                </svg>
-              </button>
-            </div>
-            <div class="edit-prices-grid">
-              <div>
-                <label class="edit-field-label">Efectivo ($)</label>
-                <input type="number" class="field-input tabular" data-field="cash" inputmode="decimal" min="0" step="any" value="${prod.cash}">
+        const html = list.map((prod) => {
+          const variants = getProductVariants(prod.id);
+          const totalStock = variants.reduce((s, v) => s + (Number(v.stock) || 0), 0);
+          return `
+            <div class="edit-card" data-edit-id="${esc(prod.id)}">
+              <div class="edit-card-top">
+                <input type="text" class="field-input" data-field="name" value="${esc(prod.name)}" aria-label="Nombre del producto" placeholder="Nombre del producto">
+                <button type="button" class="btn btn-icon btn-danger-ghost" data-delete-prod="${esc(prod.id)}" title="Eliminar producto" aria-label="Eliminar ${esc(prod.name)}">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                </button>
               </div>
-              <div>
-                <label class="edit-field-label">Transferencia ($)</label>
-                <input type="number" class="field-input tabular" data-field="transfer" inputmode="decimal" min="0" step="any" value="${prod.transfer}">
+              <div class="edit-prices-grid">
+                <div>
+                  <label class="edit-field-label">Efectivo ($)</label>
+                  <input type="number" class="field-input tabular" data-field="cash" inputmode="decimal" min="0" step="any" value="${prod.cash}">
+                </div>
+                <div>
+                  <label class="edit-field-label">Transferencia ($)</label>
+                  <input type="number" class="field-input tabular" data-field="transfer" inputmode="decimal" min="0" step="any" value="${prod.transfer}">
+                </div>
+              </div>
+              <div class="edit-card-foot">
+                <button type="button" class="chip-btn" data-plus5-id="${esc(prod.id)}">+5% transf.</button>
+                <button type="button" class="chip-btn" data-open-stock-id="${esc(prod.id)}">Stock (${variants.length} col · ${totalStock} u.)</button>
+                <button type="button" class="chip-btn" data-toggle-cat="${esc(prod.id)}">${esc(prod.category || 'Filamento')}</button>
               </div>
             </div>
-            <div class="edit-card-foot">
-              <button type="button" class="chip-btn" data-plus5-id="${esc(prod.id)}">Aplicar +5% a transf.</button>
-              <button type="button" class="chip-btn" data-toggle-cat="${esc(prod.id)}">${esc(prod.category || 'Filamento')}</button>
-            </div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
 
         els.productGrid.innerHTML = html;
       }
@@ -3962,20 +4890,56 @@
       els.toggleEditBtn.addEventListener('click', () => setEditMode(!isEditMode));
       els.doneEditBtn.addEventListener('click', () => setEditMode(false));
 
+      document.querySelector('.catalog-filter-chips').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-cat-filter]');
+        if (!btn) return;
+        catalogFilter = btn.dataset.catFilter || 'all';
+        renderCatalog();
+      });
+
+      els.syncStockBtn.addEventListener('click', () => {
+        syncStockFromRemote();
+      });
+
       els.resetCatalogBtn.addEventListener('click', () => {
-        const prev = products.map((p) => ({ ...p }));
-        products = DEFAULT_PRODUCTS.map((p) => ({ ...p }));
+        const prevProducts = products.map((p) => ({ ...p }));
+        const prevStock = JSON.parse(JSON.stringify(stockMap));
+        const prevSyncLabel = stockSyncLabelText;
+        products = buildDefaultProducts();
+        stockMap = buildDefaultStockMap();
+        stockSyncLabelText = 'Precargado';
+        safeStorageSet(STORAGE_STOCK_SYNC_AT, stockSyncLabelText);
         saveProducts();
+        saveStock();
         renderAll();
-        showToast('Lista restaurada a precios iniciales', 'Deshacer', () => {
-          products = prev;
+        showToast('Catálogo y stock inicial restaurados', 'Deshacer', () => {
+          products = prevProducts;
+          stockMap = prevStock;
+          stockSyncLabelText = prevSyncLabel;
+          safeStorageSet(STORAGE_STOCK_SYNC_AT, stockSyncLabelText);
           saveProducts();
+          saveStock();
           renderAll();
         });
       });
 
       // Catalog Grid delegation
       els.productGrid.addEventListener('click', (e) => {
+        const quickPriceBtn = e.target.closest('[data-quick-price]');
+        if (quickPriceBtn && !isEditMode) {
+          openQuickPriceModal(quickPriceBtn.dataset.quickPrice);
+          return;
+        }
+
+        const quickAddBtn = e.target.closest('[data-quick-add-prod]');
+        if (quickAddBtn && !isEditMode) {
+          addProductToCart(quickAddBtn.dataset.quickAddProd, {
+            color: quickAddBtn.dataset.quickAddColor || '',
+            sku: quickAddBtn.dataset.quickAddSku || ''
+          });
+          return;
+        }
+
         const openVarBtn = e.target.closest('[data-open-variant]');
         if (openVarBtn && !isEditMode) {
           openVariantModal(openVarBtn.dataset.openVariant);
@@ -4039,12 +5003,20 @@
           return;
         }
 
+        const openStockBtn = e.target.closest('[data-open-stock-id]');
+        if (openStockBtn) {
+          openStockModal(openStockBtn.dataset.openStockId);
+          return;
+        }
+
         const catBtn = e.target.closest('[data-toggle-cat]');
         if (catBtn) {
           const id = catBtn.dataset.toggleCat;
           const prod = products.find((p) => p.id === id);
           if (!prod) return;
-          prod.category = prod.category === 'Otro' ? 'Filamento' : 'Otro';
+          const cats = ['Filamento', 'Bulk / Mega', 'Kit / Sampler', 'Otro'];
+          const nextIdx = (cats.indexOf(prod.category) + 1) % cats.length;
+          prod.category = cats[nextIdx];
           saveProducts();
           catBtn.textContent = prod.category;
         }
@@ -4179,14 +5151,32 @@
         if (e.target === els.variantModal) closeVariantModal(true);
       });
 
+      function updateEditingVariantStock(nextValue) {
+        const item = cart.find((c) => c.key === editingVariantKey);
+        if (!item || !item.productId) return;
+        const v = findVariant(item.productId, els.variantColorInput.value.trim(), variantDraftSku);
+        if (!v) return;
+        v.stock = Math.max(0, Math.floor(Number(nextValue) || 0));
+        saveStock();
+        renderColorPresets();
+        renderCatalog();
+      }
+
       els.variantQtyDec.addEventListener('click', () => {
         variantDraftQty = Math.max(1, (Math.floor(Number(els.variantQtyInput.value)) || 1) - 1);
         els.variantQtyInput.value = String(variantDraftQty);
+        updateVariantStockUI();
       });
 
       els.variantQtyInc.addEventListener('click', () => {
         variantDraftQty = Math.max(1, (Math.floor(Number(els.variantQtyInput.value)) || 1) + 1);
         els.variantQtyInput.value = String(variantDraftQty);
+        updateVariantStockUI();
+      });
+
+      els.variantQtyInput.addEventListener('input', () => {
+        variantDraftQty = Math.max(1, Math.floor(Number(els.variantQtyInput.value) || 1));
+        updateVariantStockUI();
       });
 
       document.getElementById('variant-quick-qty').addEventListener('click', (e) => {
@@ -4194,18 +5184,44 @@
         if (!btn) return;
         variantDraftQty = Number(btn.dataset.setQty) || 1;
         els.variantQtyInput.value = String(variantDraftQty);
+        updateVariantStockUI();
+      });
+
+      els.variantStockFilterBtn.addEventListener('click', () => {
+        variantOnlyInStock = !variantOnlyInStock;
+        renderColorPresets();
+      });
+
+      els.variantStockDec.addEventListener('click', () => {
+        const cur = Math.floor(Number(els.variantStockInput.value) || 0);
+        updateEditingVariantStock(Math.max(0, cur - 1));
+      });
+
+      els.variantStockInc.addEventListener('click', () => {
+        const cur = Math.floor(Number(els.variantStockInput.value) || 0);
+        updateEditingVariantStock(Math.max(0, cur + 1));
+      });
+
+      els.variantStockInput.addEventListener('input', () => {
+        updateEditingVariantStock(els.variantStockInput.value);
+      });
+
+      els.variantStockInput.addEventListener('blur', () => {
+        updateVariantStockUI();
       });
 
       els.colorPresetsGrid.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-preset-color]');
         if (!btn) return;
-        variantDraftColor = btn.dataset.presetColor;
+        variantDraftColor = btn.dataset.presetColor || '';
+        variantDraftSku = btn.dataset.presetSku || '';
         els.variantColorInput.value = variantDraftColor;
         renderColorPresets();
       });
 
       els.variantColorInput.addEventListener('input', (e) => {
         variantDraftColor = e.target.value;
+        variantDraftSku = '';
         renderColorPresets();
       });
 
@@ -4394,6 +5410,141 @@
         if (ok) closeShareModal();
       });
 
+      // Quick Price modal
+      els.closeQpBtn.addEventListener('click', closeQuickPriceModal);
+      els.cancelQpBtn.addEventListener('click', closeQuickPriceModal);
+      els.qpModal.addEventListener('click', (e) => {
+        if (e.target === els.qpModal) closeQuickPriceModal();
+      });
+      els.qpPlus5Btn.addEventListener('click', () => {
+        const cashVal = normalizeNumber(els.qpCash.value);
+        els.qpTransfer.value = cashVal > 0 ? Math.round(cashVal * 1.05) : '';
+        els.qpTransfer.focus();
+      });
+      els.qpForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const prod = products.find((p) => p.id === editingQuickPriceProdId);
+        if (!prod) return;
+        const cash = normalizeNumber(els.qpCash.value);
+        const rawTf = els.qpTransfer.value.trim();
+        const transfer = rawTf === '' ? cash : normalizeNumber(rawTf);
+        prod.cash = cash;
+        prod.transfer = transfer;
+        saveProducts();
+        closeQuickPriceModal();
+        renderAll();
+        pulseTotals();
+        showToast(`Precio guardado: ${prod.name}`);
+      });
+
+      // Stock By Color modal
+      function updateStockSubtitleFor(prodId) {
+        const variants = getProductVariants(prodId);
+        const total = variants.reduce((s, v) => s + (Number(v.stock) || 0), 0);
+        els.stockModalSubtitle.textContent = `${variants.length} colores · ${total.toLocaleString('es-AR')} unidades totales`;
+      }
+
+      els.closeStockBtn.addEventListener('click', closeStockModal);
+      els.doneStockBtn.addEventListener('click', closeStockModal);
+      els.stockModal.addEventListener('click', (e) => {
+        if (e.target === els.stockModal) closeStockModal();
+      });
+      els.stockModalList.addEventListener('click', (e) => {
+        if (!editingStockProdId) return;
+        const decBtn = e.target.closest('[data-stock-dec]');
+        const incBtn = e.target.closest('[data-stock-inc]');
+        const btn = decBtn || incBtn;
+        if (!btn) return;
+        const idx = Number(decBtn ? decBtn.dataset.stockDec : incBtn.dataset.stockInc);
+        const variants = getProductVariants(editingStockProdId);
+        if (!variants[idx]) return;
+        const delta = decBtn ? -1 : 1;
+        variants[idx].stock = Math.max(0, (Number(variants[idx].stock) || 0) + delta);
+        saveStock();
+        const inputEl = els.stockModalList.querySelector(`[data-stock-val="${idx}"]`);
+        if (inputEl) inputEl.value = String(variants[idx].stock);
+        updateStockSubtitleFor(editingStockProdId);
+      });
+      els.stockModalList.addEventListener('input', (e) => {
+        if (!editingStockProdId) return;
+        const inputEl = e.target.closest('[data-stock-val]');
+        if (!inputEl) return;
+        const idx = Number(inputEl.dataset.stockVal);
+        const variants = getProductVariants(editingStockProdId);
+        if (!variants[idx]) return;
+        variants[idx].stock = Math.max(0, Math.floor(Number(inputEl.value) || 0));
+        saveStock();
+        updateStockSubtitleFor(editingStockProdId);
+      });
+      els.stockModalList.addEventListener('focusout', (e) => {
+        const inputEl = e.target.closest('[data-stock-val]');
+        if (!inputEl || !editingStockProdId) return;
+        const idx = Number(inputEl.dataset.stockVal);
+        const variants = getProductVariants(editingStockProdId);
+        if (variants[idx]) inputEl.value = String(Number(variants[idx].stock) || 0);
+      });
+      function addNewStockColorEntry() {
+        if (!editingStockProdId) return;
+        const color = els.stockAddColorInput.value.trim();
+        if (!color) {
+          showToast('Escribí el nombre del color');
+          els.stockAddColorInput.focus();
+          return;
+        }
+        const qty = Math.max(0, Math.floor(Number(els.stockAddQtyInput.value) || 0));
+        if (!Array.isArray(stockMap[editingStockProdId])) {
+          stockMap[editingStockProdId] = [];
+        }
+        const existing = stockMap[editingStockProdId].find((v) => v.color.toLowerCase() === color.toLowerCase());
+        if (existing) {
+          existing.stock = Math.max(0, (Number(existing.stock) || 0) + qty);
+        } else {
+          stockMap[editingStockProdId].push({ sku: '', color, stock: qty });
+        }
+        saveStock();
+        els.stockAddColorInput.value = '';
+        els.stockAddQtyInput.value = '1';
+        renderStockModalList();
+        showToast(`Stock actualizado: ${color}`);
+      }
+      els.stockAddBtn.addEventListener('click', addNewStockColorEntry);
+      els.stockAddColorInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addNewStockColorEntry();
+        }
+      });
+
+      // Live Stock Sync modal
+      els.closeSyncBtn.addEventListener('click', closeSyncModal);
+      els.syncModal.addEventListener('click', (e) => {
+        if (e.target === els.syncModal) closeSyncModal();
+      });
+      els.copyPhpCorsBtn.addEventListener('click', async () => {
+        const ok = await copyTextToClipboard(els.phpCorsSnippet.textContent || '');
+        showToast(ok ? 'Código PHP copiado' : 'No se pudo copiar');
+      });
+      els.syncRetryBtn.addEventListener('click', () => {
+        syncStockFromRemote();
+      });
+      els.syncImportPasteBtn.addEventListener('click', () => {
+        const raw = els.syncPasteInput.value.trim();
+        if (!raw) {
+          showToast('Pegá primero la tabla o HTML de stock');
+          els.syncPasteInput.focus();
+          return;
+        }
+        const parsed = parseGrilonStockTextOrHtml(raw);
+        if (parsed.skuCount === 0) {
+          showToast('No se detectaron filas válidas (SKU + Producto + Stock)');
+          return;
+        }
+        applyParsedStockGroups(parsed.groups);
+        els.syncPasteInput.value = '';
+        closeSyncModal();
+        showToast(`Stock importado (${parsed.skuCount} SKUs)`);
+      });
+
       // Theme toggle
       els.themeToggleBtn.addEventListener('click', () => {
         const current = document.documentElement.getAttribute('data-theme') || 'light';
@@ -4404,7 +5555,13 @@
       window.addEventListener('resize', syncBodyScrollLock);
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-          if (els.shareModal.classList.contains('open')) {
+          if (els.syncModal.classList.contains('open')) {
+            closeSyncModal();
+          } else if (els.stockModal.classList.contains('open')) {
+            closeStockModal();
+          } else if (els.qpModal.classList.contains('open')) {
+            closeQuickPriceModal();
+          } else if (els.shareModal.classList.contains('open')) {
             closeShareModal();
           } else if (els.variantModal.classList.contains('open')) {
             closeVariantModal(false);

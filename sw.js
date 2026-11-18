@@ -1,4 +1,4 @@
-const CACHE_NAME = 'f3d-caja-v5';
+const CACHE_NAME = 'f3d-caja-v6';
 const ASSETS = ['./index.html', './manifest.json', './icon.svg'];
 
 self.addEventListener('install', (event) => {
