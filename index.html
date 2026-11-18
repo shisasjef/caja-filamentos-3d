@@ -10,6 +10,7 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128' fill='none'%3E%3Crect width='128' height='128' rx='28' fill='%230F172A'/%3E%3Ccircle cx='64' cy='64' r='36' stroke='%2338BDF8' stroke-width='10'/%3E%3Ccircle cx='64' cy='64' r='21' stroke='%23E2E8F0' stroke-width='4' stroke-dasharray='8 6'/%3E%3Ccircle cx='64' cy='64' r='10' fill='%2338BDF8'/%3E%3C/svg%3E">
   <style>
     :root {
+      color-scheme: light;
       --bg: #f6f7f9;
       --surface: #ffffff;
       --surface-subtle: #f1f4f8;
@@ -52,6 +53,7 @@
     }
 
     [data-theme="dark"] {
+      color-scheme: dark;
       --bg: #0b0f17;
       --surface: #131a26;
       --surface-subtle: #1a2333;
@@ -95,6 +97,13 @@
 
     html {
       -webkit-text-size-adjust: 100%;
+      scroll-padding-top: 112px;
+    }
+
+    @media (min-width: 740px) {
+      html {
+        scroll-padding-top: 78px;
+      }
     }
 
     body {
@@ -418,7 +427,7 @@
 
     @media (min-width: 900px) {
       .app-shell {
-        padding: 20px 24px 32px;
+        padding: 20px 24px 24px;
         display: grid;
         grid-template-columns: minmax(0, 1.38fr) minmax(360px, 420px);
         gap: 24px;
@@ -960,7 +969,10 @@
       box-shadow: var(--shadow-md);
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      overflow-y: auto;
+      overflow-x: hidden;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
     }
 
     @media (max-width: 899px) {
@@ -972,7 +984,7 @@
         z-index: 70;
         border-radius: 20px 20px 0 0;
         border-bottom: none;
-        max-height: 89dvh;
+        max-height: 90dvh;
         box-shadow: var(--shadow-lg);
         transform: translateY(105%);
         transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
@@ -991,8 +1003,8 @@
 
       .cart-panel {
         position: sticky;
-        top: 74px;
-        max-height: calc(100dvh - 94px);
+        top: 72px;
+        max-height: calc(100dvh - 96px);
       }
 
       .mobile-only-close {
@@ -1005,7 +1017,7 @@
       height: 4px;
       border-radius: 999px;
       background: var(--border-strong);
-      margin: 8px auto 0;
+      margin: 0 auto 8px;
     }
 
     @media (min-width: 900px) {
@@ -1015,11 +1027,22 @@
     }
 
     .cart-header {
-      padding: 14px 16px 12px;
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      background: var(--surface);
+      padding: 10px 16px 12px;
       border-bottom: 1px solid var(--border);
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    @media (min-width: 900px) {
+      .cart-header {
+        padding-top: 14px;
+      }
     }
 
     .cart-title-row {
@@ -1052,13 +1075,26 @@
     }
 
     .cart-body {
-      flex: 1;
-      overflow-y: auto;
+      flex: 1 0 auto;
+      min-height: 0;
       padding: 12px 16px;
       display: flex;
       flex-direction: column;
       gap: 8px;
-      min-height: 120px;
+    }
+
+    @media (min-width: 900px) and (min-height: 860px) {
+      .cart-panel {
+        overflow: hidden;
+      }
+
+      .cart-body {
+        flex: 1 1 auto;
+        min-height: 120px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+      }
     }
 
     .cart-empty {
@@ -1227,6 +1263,7 @@
       display: flex;
       flex-direction: column;
       gap: 9px;
+      flex-shrink: 0;
     }
 
     .total-box {
@@ -1736,6 +1773,8 @@
       padding: 16px;
       align-items: center;
       justify-content: center;
+      overflow-y: auto;
+      overscroll-behavior: contain;
     }
 
     .modal-overlay.open {
@@ -1745,7 +1784,7 @@
     .modal-card {
       width: 100%;
       max-width: 460px;
-      max-height: 90dvh;
+      max-height: calc(100dvh - 32px);
       display: flex;
       flex-direction: column;
       background: var(--surface);
@@ -1755,6 +1794,13 @@
       overflow: hidden;
     }
 
+    #product-form {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
     .modal-header {
       padding: 15px 18px 12px;
       border-bottom: 1px solid var(--border);
@@ -1762,6 +1808,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
+      flex-shrink: 0;
     }
 
     .modal-title {
@@ -1775,7 +1822,11 @@
       display: flex;
       flex-direction: column;
       gap: 14px;
+      flex: 1 1 auto;
+      min-height: 0;
       overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
     }
 
     .form-group {
@@ -1820,6 +1871,7 @@
       align-items: center;
       gap: 8px;
       flex-wrap: wrap;
+      flex-shrink: 0;
     }
 
     .variant-qty-row {
@@ -2087,9 +2139,8 @@
 
     <div id="cart-backdrop" class="cart-backdrop" aria-hidden="true"></div>
     <aside id="cart-panel" class="cart-panel" aria-label="Cuenta actual">
-      <div class="sheet-drag-handle" aria-hidden="true"></div>
-
       <div class="cart-header">
+        <div class="sheet-drag-handle" aria-hidden="true"></div>
         <div class="cart-title-row">
           <div class="cart-title-wrap">
             <h2 class="cart-title">Cuenta actual</h2>
@@ -2202,7 +2253,7 @@
       <div class="sales-filters">
         <button type="button" class="chip-btn active" data-sales-filter="today">Hoy</button>
         <button type="button" class="chip-btn" data-sales-filter="all">Todas</button>
-        <div class="search-box" style="min-width:200px;">
+        <div class="search-box" style="flex:1 1 200px;min-width:170px;">
           <span class="search-icon" aria-hidden="true">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="11" cy="11" r="8"/>
@@ -3206,16 +3257,24 @@
         return lines.join('\n');
       }
 
+      function syncBodyScrollLock() {
+        const modalOpen = Boolean(document.querySelector('.modal-overlay.open'));
+        const mobileSheetOpen = window.innerWidth < 900 && els.cartPanel.classList.contains('open');
+        document.body.style.overflow = (modalOpen || mobileSheetOpen) ? 'hidden' : '';
+      }
+
       function openShareModal(title, text) {
         currentShareTitle = title;
         els.shareModalTitle.textContent = title;
         els.sharePreviewText.value = text;
         els.shareNativeBtn.style.display = typeof navigator.share === 'function' ? 'inline-flex' : 'none';
         els.shareModal.classList.add('open');
+        syncBodyScrollLock();
       }
 
       function closeShareModal() {
         els.shareModal.classList.remove('open');
+        syncBodyScrollLock();
       }
 
       // ===== VARIANT / COLOR MODAL =====
@@ -3249,6 +3308,7 @@
         renderColorPresets();
 
         els.variantModal.classList.add('open');
+        syncBodyScrollLock();
       }
 
       function commitVariantDraft() {
@@ -3272,6 +3332,7 @@
         }
         editingVariantKey = null;
         els.variantModal.classList.remove('open');
+        syncBodyScrollLock();
       }
 
       // ===== RENDERING =====
@@ -3809,12 +3870,14 @@
         els.cartPanel.classList.add('open');
         els.cartBackdrop.classList.add('open');
         els.cartBackdrop.setAttribute('aria-hidden', 'false');
+        syncBodyScrollLock();
       }
 
       function closeSheet() {
         els.cartPanel.classList.remove('open');
         els.cartBackdrop.classList.remove('open');
         els.cartBackdrop.setAttribute('aria-hidden', 'true');
+        syncBodyScrollLock();
       }
 
       function syncModalCheckboxes() {
@@ -3832,11 +3895,13 @@
         els.prodAddToCart.checked = addToCart;
         syncModalCheckboxes();
         els.modal.classList.add('open');
+        syncBodyScrollLock();
         setTimeout(() => els.prodName.focus(), 40);
       }
 
       function closeProductModal() {
         els.modal.classList.remove('open');
+        syncBodyScrollLock();
       }
 
       function setEditMode(enabled) {
@@ -4156,6 +4221,7 @@
         const keyToDelete = editingVariantKey;
         editingVariantKey = null;
         els.variantModal.classList.remove('open');
+        syncBodyScrollLock();
         setCartItemQty(keyToDelete, 0);
       });
 
@@ -4334,7 +4400,8 @@
         applyTheme(current === 'dark' ? 'light' : 'dark');
       });
 
-      // Global Escape key
+      // Global Escape key & resize scroll lock sync
+      window.addEventListener('resize', syncBodyScrollLock);
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
           if (els.shareModal.classList.contains('open')) {
