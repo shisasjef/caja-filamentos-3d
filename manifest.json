@@ -1,0 +1,18 @@
+{
+  "name": "Filamentos 3D — Caja Rápida",
+  "short_name": "Caja 3D",
+  "description": "Calculadora rápida y minimalista de ventas para filamentos 3D y productos.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f6f7f9",
+  "theme_color": "#0f172a",
+  "lang": "es-AR",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
